@@ -35,18 +35,15 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-        .game-btn { 
-            transition: all 0.1s; 
-            border-bottom: 4px solid rgba(0,0,0,0.2); 
-        }
+        .game-btn { transition: all 0.1s; border-bottom: 4px solid rgba(0,0,0,0.2); }
         .game-btn:active:not(:disabled) { transform: translateY(4px); border-bottom: 0px; margin-top: 4px; }
         .game-btn:disabled { filter: grayscale(100%); cursor: not-allowed; border-bottom: 2px solid rgba(0,0,0,0.2); }
 
         #city-map {
             background-color: #86efac;
             background-image: 
-                linear-gradient(rgba(255,255,255,0.3) 2px, transparent 2px),
-                linear-gradient(90deg, rgba(255,255,255,0.3) 2px, transparent 2px);
+                linear-gradient(rgba(255,255,255,0.4) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.4) 2px, transparent 2px);
             background-size: 100px 100px;
             min-height: calc(100vh - 180px);
             position: relative;
@@ -225,11 +222,8 @@
                 </div>
             </div>
             
-            <!-- Zone Selector & Progress -->
             <div class="flex justify-between items-center pt-1">
-                <div class="flex gap-1 overflow-x-auto py-1 max-w-[70%] custom-scrollbar" id="zone-tabs">
-                    <!-- Zone Tabs generated via JS -->
-                </div>
+                <div class="flex gap-1 overflow-x-auto py-1 max-w-[70%] custom-scrollbar" id="zone-tabs"></div>
                 <div class="text-right flex-shrink-0">
                     <span class="text-[10px] text-gray-500 font-bold">🏆 Score: <span id="ui-score" class="text-blue-600 font-black">0</span></span>
                 </div>
@@ -238,7 +232,6 @@
 
         <!-- CITY MAP VIEW -->
         <main id="city-map" class="flex-1 overflow-y-auto custom-scrollbar">
-            <!-- Container Awan (Phase 5) -->
             <div id="clouds-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
 
             <button onclick="SFX.toggle()" id="btn-sound" class="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-md z-10 w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors">
@@ -265,9 +258,7 @@
                 </button>
             </div>
             
-            <div id="city-grid" class="city-grid pb-28">
-                <!-- Grid items injected via JS -->
-            </div>
+            <div id="city-grid" class="city-grid pb-28"></div>
 
             <!-- FLOATING KUIS BUTTON -->
             <button onclick="Game.startChallenge()" class="absolute bottom-6 right-6 bg-gradient-to-b from-purple-500 to-indigo-600 text-white font-black px-4 py-3 rounded-2xl shadow-lg shadow-purple-500/40 z-30 floating flex items-center gap-2 border-b-4 border-indigo-800 game-btn">
@@ -324,9 +315,7 @@
                 <span class="text-xs font-bold text-yellow-700 uppercase">Saldo Kamu:</span>
                 <span id="shop-coins" class="text-yellow-600 font-black text-lg">🪙 0</span>
             </div>
-            <div id="shop-list" class="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
-                <!-- Shop items -->
-            </div>
+            <div id="shop-list" class="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar"></div>
         </div>
     </div>
 
@@ -355,9 +344,7 @@
             </div>
             <div class="overflow-y-auto custom-scrollbar flex-1 mb-2 pr-1">
                 <p id="q-text" class="text-base font-bold text-gray-800 leading-relaxed mb-4">Pertanyaan...</p>
-                <div id="q-options" class="space-y-2.5">
-                    <!-- Options injected via JS -->
-                </div>
+                <div id="q-options" class="space-y-2.5"></div>
                 <div id="q-feedback" class="hide mt-4 p-4 rounded-2xl text-center border-2 border-gray-100 bg-gray-50 shadow-inner">
                     <h3 id="q-feedback-title" class="font-black text-xl mb-1">BENAR!</h3>
                     <div id="q-feedback-rewards" class="font-black text-sm mb-3 flex justify-center gap-3">
@@ -470,7 +457,7 @@
         </div>
     </div>
 
-    <!-- MODAL WIN SCREEN / ENDGAME (Phase 5) -->
+    <!-- MODAL WIN SCREEN -->
     <div id="modal-win" class="hide fixed inset-0 bg-yellow-900/90 backdrop-blur-md z-[200] flex justify-center items-center p-4 modal-overlay opacity-0">
         <div id="modal-win-content" class="bg-gradient-to-b from-yellow-50 to-white w-full max-w-md rounded-3xl p-6 text-center transform scale-90 modal-content-anim shadow-[0_0_50px_rgba(234,179,8,0.5)] border-4 border-yellow-400 relative overflow-hidden">
             <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-300 rounded-full opacity-30 animate-pulse"></div>
@@ -545,7 +532,7 @@
         // ==========================================
         // 1. CONFIG & SYSTEM
         // ==========================================
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxwsImxtyq7W_PfjArdBpj3eMpF10j8HVonFk3SYJnjVDTFnzWI9q29Cvxv5dKZ-iUaCg/exec'; // Ganti dengan URL deployment Web App GAS Anda
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyQKmr0EMvAZ5WuO7oYxRUm39MXLjOvC8Zh_8kA1MzM7IfOFz3tuIxPGIjO1v7Rv01tAw/exec'; 
         
         const LevelConfig = {
             1: 0, 2: 300, 3: 700, 4: 1200, 5: 1800, 
@@ -564,10 +551,10 @@
 
         const Zones = [
             { id: "residential", name: "Residential", icon: "🏠", minLevel: 1, minScore: 0 },
-            { id: "education", name: "Education", icon: "🏫", minLevel: 3, minScore: 100 },
-            { id: "technology", name: "Technology", icon: "💻", minLevel: 5, minScore: 500 },
-            { id: "industry", name: "Industry", icon: "🏭", minLevel: 7, minScore: 1000 },
-            { id: "smartcity", name: "Smart City", icon: "🌐", minLevel: 10, minScore: 2500 }
+            { id: "education", name: "Education", icon: "🏫", minLevel: 3, minScore: 500 },
+            { id: "technology", name: "Technology", icon: "💻", minLevel: 5, minScore: 1000 },
+            { id: "industry", name: "Industry", icon: "🏭", minLevel: 7, minScore: 2000 },
+            { id: "smartcity", name: "Smart City", icon: "🌐", minLevel: 10, minScore: 4000 }
         ];
 
         const State = {
@@ -680,40 +667,27 @@
                     State.badges = res.badges;
                     State.events = res.events;
                 } else {
+                    // Fallback to offline DB matching the new schema
                     State.questions = [
-                        {QUESTION_ID:"Q1", TOPIC:"Dekomposisi", QUESTION:"Kamu ingin membuat aplikasi absensi siswa. Langkah pertama yang paling tepat adalah...", OPTION_A:"Desain warna UI", OPTION_B:"Pecah pekerjaan jadi modul-modul kecil", OPTION_C:"Ketik kode langsung", OPTION_D:"Membeli server mahal", ANSWER:"B", EXPLANATION:"Dekomposisi adalah memecah masalah/proyek besar menjadi bagian yang lebih kecil agar mudah diselesaikan.", COINS:100, XP:20},
-                        {QUESTION_ID:"Q2", TOPIC:"Algoritma", QUESTION:"Langkah berurutan sistematis untuk menyelesaikan masalah disebut...", OPTION_A:"Abstraksi", OPTION_B:"Dekomposisi", OPTION_C:"Algoritma", OPTION_D:"Pengenalan Pola", ANSWER:"C", EXPLANATION:"Algoritma menjamin langkah terstruktur dari awal hingga akhir, seperti resep masakan.", COINS:100, XP:20},
-                        {QUESTION_ID:"Q3", TOPIC:"Hardware", QUESTION:"Otak utama komputer yang bertugas memproses semua instruksi adalah...", OPTION_A:"Monitor", OPTION_B:"RAM", OPTION_C:"Hardisk", OPTION_D:"CPU", ANSWER:"D", EXPLANATION:"Central Processing Unit (CPU) adalah pemroses utama instruksi dalam komputer.", COINS:120, XP:25},
-                        {QUESTION_ID:"Q4", TOPIC:"Pengenalan Pola", QUESTION:"Melihat kesamaan ciri-ciri pada beberapa masalah yang pernah diselesaikan sebelumnya disebut dengan...", OPTION_A:"Abstraksi", OPTION_B:"Pengenalan Pola", OPTION_C:"Dekomposisi", OPTION_D:"Coding", ANSWER:"B", EXPLANATION:"Pengenalan pola membantu kita menggunakan solusi yang sama untuk masalah yang mirip.", COINS:100, XP:20}
+                        {QUESTION_ID:"Q_OFF_01", TOPIC:"Microsoft Word", DIFFICULTY:"EASY", QUESTION:"Budi ingin membuat daftar isi otomatis...", OPTION_A:"Mengetik manual", OPTION_B:"Table of Contents dengan Heading", OPTION_C:"Insert Table", OPTION_D:"Copy paste", ANSWER:"B", EXPLANATION:"Fitur Table of Contents akan membaca teks yang diatur sebagai Heading.", COINS_REWARD:100, XP_REWARD:20},
+                        {QUESTION_ID:"Q_OFF_11", TOPIC:"Microsoft Excel", DIFFICULTY:"EASY", QUESTION:"Dedi melihat sel Excel memunculkan pesan error ######. Penyebabnya adalah...", OPTION_A:"Rumus salah", OPTION_B:"Lebar kolom terlalu sempit", OPTION_C:"Angka dibagi nol", OPTION_D:"Data terhapus", ANSWER:"B", EXPLANATION:"Error ###### muncul jika angka terlalu panjang namun kolom tidak cukup lebar.", COINS_REWARD:100, XP_REWARD:20}
                     ];
                     State.buildings = [
-                        {BUILDING_ID:"B1", NAME:"Rumah Mungil", AREA:"residential", PRICE:100, CITY_SCORE:50, REQUIRED_LEVEL:1, ICON:"🏠"},
-                        {BUILDING_ID:"B2", NAME:"Taman Kota", AREA:"residential", PRICE:150, CITY_SCORE:80, REQUIRED_LEVEL:1, ICON:"🌳"},
-                        {BUILDING_ID:"B3", NAME:"Sekolah Dasar", AREA:"education", PRICE:300, CITY_SCORE:150, REQUIRED_LEVEL:3, ICON:"🏫"},
-                        {BUILDING_ID:"B4", NAME:"Perpustakaan", AREA:"education", PRICE:400, CITY_SCORE:180, REQUIRED_LEVEL:3, ICON:"📚"},
-                        {BUILDING_ID:"B5", NAME:"Computer Lab", AREA:"technology", PRICE:700, CITY_SCORE:300, REQUIRED_LEVEL:5, ICON:"💻"},
-                        {BUILDING_ID:"B6", NAME:"Internet Hub", AREA:"technology", PRICE:900, CITY_SCORE:350, REQUIRED_LEVEL:5, ICON:"🌐"},
-                        {BUILDING_ID:"B7", NAME:"Pabrik Modern", AREA:"industry", PRICE:1200, CITY_SCORE:450, REQUIRED_LEVEL:7, ICON:"🏭"},
-                        {BUILDING_ID:"B8", NAME:"Smart Traffic Hub", AREA:"smartcity", PRICE:2500, CITY_SCORE:800, REQUIRED_LEVEL:10, ICON:"🚦"},
-                        {BUILDING_ID:"B9", NAME:"City Hall", AREA:"smartcity", PRICE:5000, CITY_SCORE:1500, REQUIRED_LEVEL:10, ICON:"🏛️"}
+                        {BUILDING_ID:"B001", NAME:"Rumah Cerdas", AREA:"residential", PRICE:100, REQUIRED_LEVEL:1, DESCRIPTION:"Tempat tinggal warga.", CITY_SCORE:50, ICON:"🏠"},
+                        {BUILDING_ID:"B004", NAME:"Sekolah Koding", AREA:"education", PRICE:300, REQUIRED_LEVEL:2, DESCRIPTION:"Sekolah programmer.", CITY_SCORE:150, ICON:"🏫"},
+                        {BUILDING_ID:"B007", NAME:"Server Farm", AREA:"technology", PRICE:800, REQUIRED_LEVEL:5, DESCRIPTION:"Pusat data.", CITY_SCORE:300, ICON:"🖧"},
+                        {BUILDING_ID:"B014", NAME:"City Hall", AREA:"smartcity", PRICE:5000, REQUIRED_LEVEL:10, DESCRIPTION:"Markas Mayor.", CITY_SCORE:2500, ICON:"🏛️"}
                     ];
                     State.quests = [
-                        {QUEST_ID:"QST1", TITLE:"Jawab 3 Pertanyaan", TARGET_TYPE:"answers", TARGET_COUNT:3, PROGRESS:0, COINS:300, XP:100, COMPLETED:false},
-                        {QUEST_ID:"QST2", TITLE:"Dapatkan Streak 3", TARGET_TYPE:"streak", TARGET_COUNT:3, PROGRESS:0, COINS:250, XP:50, COMPLETED:false},
-                        {QUEST_ID:"QST3", TITLE:"Bangun 2 Gedung", TARGET_TYPE:"buildings", TARGET_COUNT:2, PROGRESS:0, COINS:300, XP:100, COMPLETED:false}
+                        {QUEST_ID:"Q001", NAME:"Pemanasan Otak", DESCRIPTION:"Jawab 3 soal dengan benar", REQUIREMENT_TYPE:"answer_correct", REQUIREMENT_VALUE:3, PROGRESS:0, REWARD_COINS:150, REWARD_XP:50, COMPLETED:false},
+                        {QUEST_ID:"Q002", NAME:"Arsitek Pemula", DESCRIPTION:"Bangun 2 gedung jenis apa saja", REQUIREMENT_TYPE:"build_building", REQUIREMENT_VALUE:2, PROGRESS:0, REWARD_COINS:200, REWARD_XP:100, COMPLETED:false}
                     ];
                     State.badges = [
-                        {BADGE_ID:"BDG1", NAME:"First Builder", DESC:"Bangun gedung pertamamu", ICON:"🏠"},
-                        {BADGE_ID:"BDG2", NAME:"Brain Master", DESC:"Jawab 5 soal dengan benar", ICON:"🧠"},
-                        {BADGE_ID:"BDG3", NAME:"Perfect Streak", DESC:"Mencapai streak 5", ICON:"🔥"},
-                        {BADGE_ID:"BDG4", NAME:"Education Mayor", DESC:"Buka zona Education", ICON:"🏫"},
-                        {BADGE_ID:"BDG5", NAME:"Tech Mayor", DESC:"Buka zona Technology", ICON:"💻"},
-                        {BADGE_ID:"BDG6", NAME:"Mayor of the Future", DESC:"Membangun City Hall!", ICON:"👑"}
+                        {BADGE_ID:"BDG01", NAME:"First Builder", DESCRIPTION:"Membangun gedung pertama", ICON:"🏠"},
+                        {BADGE_ID:"BDG02", NAME:"Brain Master", DESCRIPTION:"Menjawab 10 pertanyaan benar", ICON:"🧠"}
                     ];
                     State.events = [
-                        {EVENT_ID:"EV1", NAME:"Pemadaman Listrik!", DESCRIPTION:"Genset kota rusak. Jawab tantangan darurat untuk menyalakan listrik kembali!", TYPE:"challenge", REWARD_COINS:150, ICON:"⚡"},
-                        {EVENT_ID:"EV2", NAME:"Macet Total!", DESCRIPTION:"Traffic light offline. Bantu atur algoritma lalu lintas!", TYPE:"challenge", REWARD_COINS:150, ICON:"🚦"},
-                        {EVENT_ID:"EV3", NAME:"Festival Kota!", DESCRIPTION:"Warga merayakan pencapaianmu. Terimalah donasi koin ini!", TYPE:"reward", REWARD_COINS:300, ICON:"🎉"}
+                        {EVENT_ID:"E001", NAME:"Serangan Malware!", DESCRIPTION:"Sistem bank kota terkena virus.", TYPE:"problem_solving", REWARD:200, PENALTY:0, QUESTION_ID:"", ICON:"🦠"}
                     ];
                 }
                 setTimeout(() => UI.showScreen('login-screen'), 800);
@@ -731,7 +705,7 @@
                     State.player = res.player;
                     if(typeof State.player.buildings === 'string') State.player.buildings = State.player.buildings ? State.player.buildings.split(',') : [];
                     if(typeof State.player.badges === 'string') State.player.badges = State.player.badges ? State.player.badges.split(',') : [];
-                    if(typeof State.player.stats === 'string') State.player.stats = JSON.parse(State.player.stats || '{"answered":0,"correct":0,"wrong":0}');
+                    if(typeof State.player.stats === 'string') State.player.stats = JSON.parse(State.player.stats || '{}');
                 } else {
                     let local = localStorage.getItem('smartcity_p2_' + nama);
                     if(local) {
@@ -742,12 +716,13 @@
                         State.player = {
                             id: "P_" + Date.now(), nama, kelas, level: 1, xp: 0, coins: 500, city_score: 0,
                             streak: 0, max_streak: 0, buildings: [], quests_completed: 0, badges: [],
-                            stats: { answered: 0, correct: 0, wrong: 0 }
+                            stats: { answered: 0, correct: 0, wrong: 0, events_resolved: 0 }
                         };
                     }
                 }
                 
                 State.player.streak = 0;
+                State.player.stats.events_resolved = State.player.stats.events_resolved || 0;
                 UI.showToast(`Selamat datang kembali, Mayor ${nama}! 🎉`, "success");
                 this.startGame();
             },
@@ -780,11 +755,11 @@
                 
                 let pool = State.questions;
                 if(topicFilter) {
-                    const filtered = pool.filter(q => q.TOPIC && q.TOPIC.toLowerCase() === topicFilter.toLowerCase());
+                    const filtered = pool.filter(q => q.TOPIC && q.TOPIC.toLowerCase().includes(topicFilter.toLowerCase()));
                     if(filtered.length > 0) {
                         pool = filtered;
                     } else {
-                        UI.showToast(`Soal khusus topik ${topicFilter} belum tersedia. Menampilkan soal acak!`, 'info');
+                        UI.showToast(`Soal khusus topik belum tersedia. Menampilkan acak!`, 'info');
                     }
                 }
                 
@@ -814,9 +789,11 @@
                 const rewardCoinEl = document.getElementById('q-reward-coin');
                 const rewardXpEl = document.getElementById('q-reward-xp');
                 
-                let coinGain = Number(q.COINS || 100);
-                let xpGain = Number(q.XP || 20);
+                let coinGain = Number(q.COINS_REWARD || 100);
+                let xpGain = Number(q.XP_REWARD || 20);
                 
+                this.checkQuests('answer_total', 1);
+
                 if(isCorrect) {
                     State.player.stats.correct = (State.player.stats.correct || 0) + 1;
                     State.player.stats.topics[q.TOPIC].correct += 1;
@@ -842,8 +819,8 @@
                     UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2, `+${coinGain} 🪙`, 'yellow');
                     
                     this.checkLevelUp();
-                    this.checkQuests('answers', 1);
-                    this.checkQuests('streak', State.player.streak);
+                    this.checkQuests('answer_correct', 1);
+                    this.checkQuests('streak_reach', State.player.streak);
                     this.checkBadges();
                 } else {
                     State.player.stats.wrong = (State.player.stats.wrong || 0) + 1;
@@ -860,6 +837,9 @@
                 document.getElementById('q-streak').innerText = State.player.streak;
                 UI.updateDashboard();
                 this.saveProgress();
+
+                State.actionCount++;
+                if(State.actionCount >= 3) this.checkRandomEvent();
             },
 
             checkLevelUp() {
@@ -874,22 +854,33 @@
                     SFX.play('levelup'); 
                     UI.showToast(`🎉 LEVEL UP KE LEVEL ${State.player.level}!`, "success");
                     UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2 - 50, `LEVEL ${State.player.level}!`, 'purple');
+                    this.checkQuests('reach_level', State.player.level);
                 }
                 UI.updateDashboard();
             },
 
             checkQuests(type, count = 1) {
                 State.quests.forEach(q => {
-                    if(!q.COMPLETED && q.TARGET_TYPE === type) {
-                        q.PROGRESS = type === 'streak' ? Math.max(q.PROGRESS, count) : (q.PROGRESS + count);
-                        if(q.PROGRESS >= q.TARGET_COUNT) {
-                            q.PROGRESS = q.TARGET_COUNT;
+                    if(!q.COMPLETED && q.REQUIREMENT_TYPE === type) {
+                        if(type === 'streak_reach' || type === 'reach_level' || type === 'reach_score') {
+                            q.PROGRESS = Math.max(q.PROGRESS || 0, count);
+                        } else if(type === 'build_specific') {
+                            if(count === q.REQUIREMENT_VALUE) q.PROGRESS = 1; 
+                        } else {
+                            q.PROGRESS = (q.PROGRESS || 0) + count;
+                        }
+
+                        let target = Number(q.REQUIREMENT_VALUE) || 1;
+                        if(type === 'build_specific') target = 1;
+
+                        if(q.PROGRESS >= target) {
+                            q.PROGRESS = target;
                             q.COMPLETED = true;
-                            State.player.coins += Number(q.COINS);
-                            State.player.xp += Number(q.XP);
+                            State.player.coins += Number(q.REWARD_COINS);
+                            State.player.xp += Number(q.REWARD_XP);
                             State.player.quests_completed = (State.player.quests_completed || 0) + 1;
                             SFX.play('correct');
-                            UI.showToast(`📜 Quest Selesai: ${q.TITLE}! (+${q.COINS} 🪙)`, "success");
+                            UI.showToast(`📜 Quest Selesai: ${q.NAME}! (+${q.REWARD_COINS} 🪙)`, "success");
                             this.checkLevelUp();
                         }
                     }
@@ -908,39 +899,52 @@
                     }
                 };
 
-                if(p.buildings.length >= 1) giveBadge('BDG1');
-                if(p.stats && p.stats.correct >= 5) giveBadge('BDG2');
-                if(p.max_streak >= 5) giveBadge('BDG3');
+                // Badge Logic according to New DB
+                if(p.buildings.length >= 1) giveBadge('BDG01');
+                if(p.stats && p.stats.correct >= 10) giveBadge('BDG02');
+                if(p.max_streak >= 10) giveBadge('BDG03');
                 
-                const hasEducation = p.buildings.some(bId => { const b = State.buildings.find(x => x.BUILDING_ID === bId); return b && b.AREA === 'education'; });
-                if(hasEducation) giveBadge('BDG4');
+                const hasArea = (area) => p.buildings.some(bId => { const b = State.buildings.find(x => x.BUILDING_ID === bId); return b && b.AREA === area; });
+                if(hasArea('education')) giveBadge('BDG04');
+                if(hasArea('technology')) giveBadge('BDG05');
+                if(hasArea('industry')) giveBadge('BDG06');
+                if(hasArea('smartcity')) giveBadge('BDG07');
                 
-                const hasTech = p.buildings.some(bId => { const b = State.buildings.find(x => x.BUILDING_ID === bId); return b && b.AREA === 'technology'; });
-                if(hasTech) giveBadge('BDG5');
+                // AI Pioneer (B009)
+                if(p.buildings.includes('B009')) giveBadge('BDG08');
+                
+                // Bug Hunter
+                if(p.stats.events_resolved >= 3) giveBadge('BDG09');
             },
 
             checkRandomEvent() {
                 if(!State.events || State.events.length === 0) return;
+                if(Math.random() > 0.3) return; // 30% chance
+
                 const ev = State.events[Math.floor(Math.random() * State.events.length)];
                 
-                document.getElementById('event-icon').innerText = ev.ICON;
+                document.getElementById('event-icon').innerText = ev.ICON || '⚡';
                 document.getElementById('event-title').innerText = ev.NAME;
                 document.getElementById('event-desc').innerText = ev.DESCRIPTION;
                 
                 const btn = document.getElementById('btn-event-action');
-                if(ev.TYPE === 'challenge') {
+                if(ev.TYPE === 'problem_solving') {
                     btn.innerText = "Selesaikan Tantangan!";
                     btn.onclick = () => {
                         UI.closeModal('modal-event');
                         Game.startChallenge();
+                        State.player.stats.events_resolved = (State.player.stats.events_resolved || 0) + 1;
+                        Game.checkBadges();
                     };
                 } else {
                     btn.innerText = "Ambil Hadiah!";
                     btn.onclick = () => {
-                        State.player.coins += Number(ev.REWARD_COINS || 200);
+                        State.player.coins += Number(ev.REWARD || 200);
                         UI.updateDashboard();
-                        UI.showToast(`🎁 Event Selesai! +${ev.REWARD_COINS} Coins`, "success");
+                        UI.showToast(`🎁 Event Selesai! +${ev.REWARD} Coins`, "success");
                         UI.closeModal('modal-event');
+                        State.player.stats.events_resolved = (State.player.stats.events_resolved || 0) + 1;
+                        Game.checkBadges();
                         Game.saveProgress();
                     };
                 }
@@ -979,14 +983,16 @@
                 UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2, `+${b.CITY_SCORE} Score!`, 'blue');
                 UI.showToast(`🏗️ ${b.NAME} berhasil dibangun!`, "success");
 
-                if (b.NAME === "City Hall" && !State.player.badges.includes('BDG6')) {
+                if (b.BUILDING_ID === "B014" && !State.player.badges.includes('BDG10')) {
                     setTimeout(() => UI.showWinScreen(), 1000); 
-                    if (!State.player.badges.includes('BDG6')) {
-                        State.player.badges.push('BDG6'); 
+                    if (!State.player.badges.includes('BDG10')) {
+                        State.player.badges.push('BDG10'); 
                     }
                 }
 
-                this.checkQuests('buildings', 1);
+                this.checkQuests('build_building', 1);
+                this.checkQuests('build_specific', b.BUILDING_ID);
+                this.checkQuests('reach_score', State.player.city_score);
                 this.checkBadges();
                 this.saveProgress();
 
@@ -1065,6 +1071,7 @@
                     this.openModal('modal-profile');
                 }
             },
+            
             updateDashboard() {
                 const p = State.player;
                 if(!p) return;
@@ -1156,7 +1163,6 @@
                     lockedNotice.classList.add('hide');
                 }
 
-                const zoneBuildings = State.buildings.filter(b => b.AREA === State.currentZone);
                 const builtInZone = State.player.buildings.filter(bId => {
                     const bObj = State.buildings.find(x => x.BUILDING_ID === bId);
                     return bObj && bObj.AREA === State.currentZone;
@@ -1210,7 +1216,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">${b.ICON}</div>
                                 <div>
-                                    <h4 class="font-black text-gray-800 text-sm">${b.NAME}</h4>
+                                    <h4 class="font-black text-gray-800 text-sm truncate w-28">${b.NAME}</h4>
                                     <div class="flex gap-2 mt-0.5">
                                         <span class="text-[10px] font-bold text-yellow-600">🪙 ${b.PRICE}</span>
                                         <span class="text-[10px] font-bold text-blue-600">🏆 +${b.CITY_SCORE}</span>
@@ -1228,6 +1234,7 @@
                 }
                 this.openModal('modal-build');
             },
+            
             showBuildingInfo(b) {
                 if(!b) return;
                 SFX.play('click');
@@ -1239,7 +1246,7 @@
                 const btn = document.getElementById('b-info-challenge-btn');
                 btn.onclick = () => {
                     UI.closeModal('modal-building-info');
-                    let topicMap = { residential: 'Dekomposisi', education: 'Algoritma', technology: 'Hardware', industry: 'Pengenalan Pola', smartcity: 'Internet' };
+                    let topicMap = { residential: 'Word', education: 'Excel', technology: 'Excel', industry: 'Office', smartcity: 'Excel' };
                     Game.startChallenge(topicMap[b.AREA] || null);
                 };
                 this.openModal('modal-building-info');
@@ -1269,19 +1276,23 @@
                 const list = document.getElementById('quest-list');
                 list.innerHTML = '';
                 State.quests.forEach(q => {
-                    const pct = Math.min(100, Math.round((q.PROGRESS / q.TARGET_COUNT) * 100));
+                    let target = Number(q.REQUIREMENT_VALUE) || 1;
+                    if(q.REQUIREMENT_TYPE === 'build_specific') target = 1;
+                    const pct = Math.min(100, Math.round(((q.PROGRESS || 0) / target) * 100));
+                    
                     const div = document.createElement('div');
                     div.className = `p-4 rounded-2xl border-2 flex flex-col gap-2 ${q.COMPLETED ? 'bg-green-50/50 border-green-200' : 'bg-white border-gray-100'}`;
                     div.innerHTML = `
                         <div class="flex justify-between items-center">
-                            <h4 class="font-black text-gray-800 text-sm">${q.TITLE}</h4>
-                            <span class="text-xs font-bold ${q.COMPLETED ? 'text-green-600' : 'text-purple-600'}">${q.PROGRESS}/${q.TARGET_COUNT}</span>
+                            <h4 class="font-black text-gray-800 text-sm">${q.NAME}</h4>
+                            <span class="text-xs font-bold ${q.COMPLETED ? 'text-green-600' : 'text-purple-600'}">${q.PROGRESS || 0}/${target}</span>
                         </div>
+                        <p class="text-xs text-gray-500 font-medium">${q.DESCRIPTION}</p>
                         <div class="w-full bg-gray-100 rounded-full h-2">
                             <div class="bg-purple-500 h-2 rounded-full transition-all" style="width: ${pct}%"></div>
                         </div>
                         <div class="flex justify-between items-center mt-1">
-                            <span class="text-[10px] font-bold text-yellow-600">🪙 +${q.COINS} &nbsp; ✨ +${q.XP}</span>
+                            <span class="text-[10px] font-bold text-yellow-600">🪙 +${q.REWARD_COINS} &nbsp; ✨ +${q.REWARD_XP}</span>
                             ${q.COMPLETED ? '<span class="text-[10px] font-black text-green-600 uppercase bg-green-100 px-2.5 py-0.5 rounded-full">Selesai ✅</span>' : '<span class="text-[10px] font-bold text-gray-400">Sedang Berjalan</span>'}
                         </div>
                     `;
@@ -1289,13 +1300,18 @@
                 });
             },
             updateQuestNotification() {
-                const hasPending = State.quests.some(q => q.PROGRESS >= q.TARGET_COUNT && !q.COMPLETED);
+                const hasPending = State.quests.some(q => {
+                    let target = Number(q.REQUIREMENT_VALUE) || 1;
+                    if(q.REQUIREMENT_TYPE === 'build_specific') target = 1;
+                    return (q.PROGRESS || 0) >= target && !q.COMPLETED;
+                });
                 const dot = document.getElementById('notif-quest');
                 if(dot) {
                     if(hasPending) dot.classList.remove('hide');
                     else dot.classList.add('hide');
                 }
             },
+            
             renderProfile() {
                 const p = State.player;
                 const body = document.getElementById('profile-body');
@@ -1336,10 +1352,10 @@
                     const card = document.createElement('div');
                     card.className = `p-3 rounded-2xl border-2 flex items-center gap-3 ${isUnlocked ? 'bg-yellow-50/60 border-yellow-300' : 'bg-gray-100 border-gray-200 opacity-60'}`;
                     card.innerHTML = `
-                        <div class="text-3xl">${b.ICON}</div>
+                        <div class="text-3xl">${b.ICON || '🏅'}</div>
                         <div>
                             <h4 class="font-black text-xs text-gray-800">${b.NAME}</h4>
-                            <p class="text-[10px] text-gray-500 font-medium">${b.DESC}</p>
+                            <p class="text-[10px] text-gray-500 font-medium leading-tight mt-0.5">${b.DESCRIPTION}</p>
                         </div>
                     `;
                     badgeGrid.appendChild(card);
@@ -1420,7 +1436,7 @@
                     document.getElementById('adm-tot-answered').innerText = '315';
                     document.getElementById('adm-avg-acc').innerText = '78%';
                     document.getElementById('adm-top-player').innerText = 'Ahmad (8A)';
-                    this.renderChart(['Dekomposisi', 'Algoritma', 'Hardware', 'Pola'], [85, 70, 92, 65]);
+                    this.renderChart(['Word', 'Excel', 'Office'], [85, 70, 92]);
                 }
             },
             renderChart(labels, dataArr) {
