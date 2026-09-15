@@ -1,0 +1,1460 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Smart City Academy</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --secondary: #10B981;
+            --coin: #F59E0B;
+            --xp: #8B5CF6;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            touch-action: manipulation;
+            user-select: none;
+        }
+
+        h1, h2, h3, .brand-font { font-family: 'Nunito', sans-serif; }
+        .hide { display: none !important; }
+        .glass { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+        
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        .game-btn { 
+            transition: all 0.1s; 
+            border-bottom: 4px solid rgba(0,0,0,0.2); 
+        }
+        .game-btn:active:not(:disabled) { transform: translateY(4px); border-bottom: 0px; margin-top: 4px; }
+        .game-btn:disabled { filter: grayscale(100%); cursor: not-allowed; border-bottom: 2px solid rgba(0,0,0,0.2); }
+
+        #city-map {
+            background-color: #86efac;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.3) 2px, transparent 2px),
+                linear-gradient(90deg, rgba(255,255,255,0.3) 2px, transparent 2px);
+            background-size: 100px 100px;
+            min-height: calc(100vh - 180px);
+            position: relative;
+            padding: 20px;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.05);
+        }
+
+        .city-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+            gap: 15px;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 10;
+        }
+
+        .building-plot {
+            background: rgba(255, 255, 255, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.8);
+            border-radius: 16px;
+            height: 90px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .building-plot:hover { background: rgba(255, 255, 255, 0.7); }
+
+        .building-item {
+            background: linear-gradient(145deg, #ffffff, #f0f0f0);
+            border-radius: 16px;
+            height: 90px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1), inset 0 -4px 0 rgba(0,0,0,0.05);
+            animation: popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        .building-name-small { font-size: 0.6rem; font-weight: 800; color: #475569; margin-top: 2px; text-align:center; text-transform: uppercase; }
+
+        @keyframes popIn {
+            0% { transform: scale(0.3) translateY(20px); opacity: 0; }
+            50% { transform: scale(1.1) translateY(-10px); }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .floating { animation: float 3s ease-in-out infinite; }
+
+        .floating-reward {
+            position: fixed;
+            font-weight: 900;
+            font-size: 1.2rem;
+            pointer-events: none;
+            z-index: 9999;
+            animation: floatUp 1.5s forwards ease-out;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-60px) scale(1.2); }
+        }
+
+        @keyframes moveCloud {
+            0% { transform: translateX(-10vw); }
+            100% { transform: translateX(110vw); }
+        }
+        .cloud-anim {
+            position: absolute;
+            font-size: 3rem;
+            opacity: 0.4;
+            animation: moveCloud linear infinite;
+            pointer-events: none;
+            z-index: 0;
+            text-shadow: 0 5px 15px rgba(255,255,255,0.8);
+        }
+
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; }
+        .toast { background: white; padding: 12px 24px; border-radius: 20px; font-weight: bold; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: toastAnim 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; text-align: center; }
+        @keyframes toastAnim { 0% { transform: translateY(-30px) scale(0.8); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+
+        .modal-overlay { transition: opacity 0.3s ease; }
+        .modal-content-anim { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+    </style>
+</head>
+<body>
+
+    <div id="toast-container" class="toast-container"></div>
+
+    <!-- LOADING SCREEN -->
+    <div id="loading-screen" class="fixed inset-0 bg-gradient-to-b from-blue-500 to-indigo-700 z-[60] flex flex-col items-center justify-center text-white">
+        <i class="fas fa-city text-7xl floating mb-6 text-white drop-shadow-lg"></i>
+        <h1 class="text-4xl font-black brand-font tracking-wide">SMART CITY<br><span class="text-yellow-300">ACADEMY</span></h1>
+        <div class="mt-8 flex gap-2">
+            <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0s;"></div>
+            <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+            <div class="w-3 h-3 bg-white rounded-full animate-bounce" style="animation-delay: 0.4s;"></div>
+        </div>
+        <p class="mt-4 text-sm font-semibold text-blue-200">Memuat Data Kota...</p>
+    </div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen" class="hide fixed inset-0 bg-gradient-to-br from-blue-500 to-indigo-800 z-50 flex flex-col justify-center items-center p-4">
+        <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl text-center relative overflow-hidden">
+            <div class="absolute -right-10 -top-10 w-32 h-32 bg-yellow-100 rounded-full opacity-50"></div>
+            <div class="text-6xl mb-4 relative z-10 floating">🌎</div>
+            <h1 class="text-3xl font-extrabold brand-font text-gray-800 leading-tight mb-2 relative z-10">SMART CITY<br>ACADEMY</h1>
+            <p class="text-gray-500 mb-6 font-semibold relative z-10">"Build, Learn, Solve!"</p>
+            
+            <div class="space-y-4 text-left relative z-10">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Nama Calon Mayor <span class="text-red-500">*</span></label>
+                    <input type="text" id="login-name" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none font-bold text-lg bg-gray-50 transition-colors" placeholder="Ketik namamu...">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">Kelas <span class="text-red-500">*</span></label>
+                    <select id="login-class" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-blue-500 focus:outline-none font-bold text-lg bg-gray-50 cursor-pointer transition-colors">
+                        <option value="7A">Kelas 7A</option>
+                        <option value="7B">Kelas 7B</option>
+                        <option value="8A">Kelas 8A</option>
+                        <option value="8B">Kelas 8B</option>
+                        <option value="9A">Kelas 9A</option>
+                        <option value="9B">Kelas 9B</option>
+                    </select>
+                </div>
+                <button onclick="Game.login()" class="game-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-black text-xl py-4 rounded-xl mt-4 shadow-lg shadow-blue-500/30">
+                    🚀 MULAI MEMBANGUN
+                </button>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-100 text-center">
+                <button onclick="Admin.showLogin()" class="text-xs font-bold text-gray-400 hover:text-gray-600 transition-colors">
+                    <i class="fas fa-user-shield"></i> Masuk sebagai Guru (Admin)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard-screen" class="hide flex flex-col h-screen">
+        <header class="glass sticky top-0 z-20 px-4 py-3 shadow-sm border-b border-gray-100 flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-blue-100 border-2 border-blue-500 rounded-full flex items-center justify-center text-xl shadow-sm">
+                        👨‍💼
+                    </div>
+                    <div>
+                        <h2 class="font-bold brand-font text-gray-800 text-base leading-none tracking-tight">MAYOR <span id="ui-name" class="uppercase text-blue-600">AHMAD</span></h2>
+                        <div class="flex gap-1.5 mt-1">
+                            <span class="text-[9px] text-gray-600 font-extrabold bg-gray-200 px-2 py-0.5 rounded-md">LVL <span id="ui-level">1</span></span>
+                            <span class="text-[9px] text-purple-600 font-extrabold bg-purple-100 px-2 py-0.5 rounded-md" id="ui-city-rank">🌱 Village</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="text-right flex flex-col items-end gap-1">
+                    <div class="bg-yellow-50 px-3 py-1 rounded-full border border-yellow-200 shadow-sm flex items-center gap-1 font-black text-yellow-600 text-sm w-full justify-end">
+                        🪙 <span id="ui-coins">0</span>
+                    </div>
+                    <div class="w-full flex flex-col items-end">
+                        <div class="font-black text-purple-600 text-[10px] mb-0.5">
+                            ✨ <span id="ui-xp">0</span> / <span id="ui-xp-max">300</span> XP
+                        </div>
+                        <div class="w-20 bg-gray-200 rounded-full h-1.5">
+                            <div id="ui-xp-bar" class="bg-purple-500 h-1.5 rounded-full transition-all" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Zone Selector & Progress -->
+            <div class="flex justify-between items-center pt-1">
+                <div class="flex gap-1 overflow-x-auto py-1 max-w-[70%] custom-scrollbar" id="zone-tabs">
+                    <!-- Zone Tabs generated via JS -->
+                </div>
+                <div class="text-right flex-shrink-0">
+                    <span class="text-[10px] text-gray-500 font-bold">🏆 Score: <span id="ui-score" class="text-blue-600 font-black">0</span></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- CITY MAP VIEW -->
+        <main id="city-map" class="flex-1 overflow-y-auto custom-scrollbar">
+            <!-- Container Awan (Phase 5) -->
+            <div id="clouds-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+            <button onclick="SFX.toggle()" id="btn-sound" class="absolute top-4 right-4 bg-white/80 p-2 rounded-full shadow-md z-10 w-10 h-10 flex items-center justify-center text-gray-600 hover:text-blue-600 transition-colors">
+                <i class="fas fa-volume-up"></i>
+            </button>
+
+            <!-- Locked Zone Notice -->
+            <div id="zone-locked-notice" class="hide flex flex-col items-center justify-center mt-20 text-center bg-white/80 backdrop-md p-8 rounded-3xl mx-4 border-2 border-red-200 shadow-xl relative z-10">
+                <div class="text-6xl mb-3">🔒</div>
+                <h3 class="text-2xl font-black brand-font text-gray-800 mb-2" id="locked-title">Zona Terkunci</h3>
+                <p class="text-gray-600 font-medium text-sm mb-4" id="locked-desc">Syarat belum terpenuhi.</p>
+                <div class="bg-red-50 text-red-600 px-4 py-2 rounded-xl text-xs font-bold border border-red-200" id="locked-requirement">
+                    Requirement info
+                </div>
+            </div>
+
+            <!-- Empty State Notice -->
+            <div id="city-empty-state" class="hide text-center mt-20 text-gray-700 font-bold bg-white/60 mx-4 p-6 rounded-2xl border-2 border-white/50 backdrop-blur-sm shadow-xl relative z-10">
+                <div class="text-6xl mb-3 floating">🌱</div>
+                <h3 class="text-xl brand-font mb-1">Zona ini masih kosong!</h3>
+                <p class="text-sm text-gray-500 mb-4">Buka menu Build untuk mulai membangun fasilitas di zona ini.</p>
+                <button onclick="UI.showBuildShop()" class="bg-green-500 text-white font-black px-6 py-2.5 rounded-xl shadow-lg shadow-green-500/30 game-btn text-sm">
+                    🏗️ Buka Toko Bangunan
+                </button>
+            </div>
+            
+            <div id="city-grid" class="city-grid pb-28">
+                <!-- Grid items injected via JS -->
+            </div>
+
+            <!-- FLOATING KUIS BUTTON -->
+            <button onclick="Game.startChallenge()" class="absolute bottom-6 right-6 bg-gradient-to-b from-purple-500 to-indigo-600 text-white font-black px-4 py-3 rounded-2xl shadow-lg shadow-purple-500/40 z-30 floating flex items-center gap-2 border-b-4 border-indigo-800 game-btn">
+                <span class="text-2xl drop-shadow-md">🧠</span>
+                <span class="drop-shadow-md uppercase text-xs text-left leading-tight">Kuis<br>Harian</span>
+            </button>
+        </main>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bg-white border-t border-gray-200 pb-safe z-20 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] fixed bottom-0 w-full">
+            <div class="flex justify-around items-end px-2 pb-2 pt-3 max-w-lg mx-auto">
+                <button onclick="UI.switchNav('city')" id="nav-btn-city" class="flex flex-col items-center p-1.5 text-blue-600 w-14">
+                    <div class="bg-blue-100 p-2 rounded-xl mb-1"><i class="fas fa-city text-lg"></i></div>
+                    <span class="text-[9px] font-black uppercase">Kota</span>
+                </button>
+                <button onclick="UI.switchNav('quest')" id="nav-btn-quest" class="flex flex-col items-center p-1.5 text-gray-400 hover:text-purple-600 w-14 relative">
+                    <div class="p-2 rounded-xl mb-1"><i class="fas fa-scroll text-lg"></i></div>
+                    <span class="text-[9px] font-black uppercase">Quest</span>
+                    <span id="notif-quest" class="absolute top-1 right-2 w-2.5 h-2.5 bg-red-500 rounded-full border-2 border-white hide"></span>
+                </button>
+                
+                <div class="relative -top-5">
+                    <button onclick="UI.showBuildShop()" class="game-btn bg-gradient-to-b from-green-400 to-green-600 text-white rounded-full w-18 h-18 flex flex-col items-center justify-center shadow-xl shadow-green-500/40 border-b-4 border-green-800">
+                        <i class="fas fa-hammer text-2xl mb-0.5 drop-shadow-md"></i>
+                        <span class="text-[10px] font-black uppercase drop-shadow-md">BUILD</span>
+                    </button>
+                </div>
+
+                <button onclick="UI.switchNav('leaderboard')" id="nav-btn-leaderboard" class="flex flex-col items-center p-1.5 text-gray-400 hover:text-orange-500 w-14">
+                    <div class="p-2 rounded-xl mb-1"><i class="fas fa-trophy text-lg"></i></div>
+                    <span class="text-[9px] font-black uppercase">Peringkat</span>
+                </button>
+                <button onclick="UI.switchNav('profile')" id="nav-btn-profile" class="flex flex-col items-center p-1.5 text-gray-400 hover:text-indigo-600 w-14">
+                    <div class="p-2 rounded-xl mb-1"><i class="fas fa-user text-lg"></i></div>
+                    <span class="text-[9px] font-black uppercase">Profil</span>
+                </button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MODAL BUILD SHOP -->
+    <div id="modal-build" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-build-content" class="bg-gray-50 w-full sm:w-[500px] h-[85vh] sm:h-[650px] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 shadow-sm flex-shrink-0 flex justify-between items-center">
+                <div>
+                    <h3 class="font-black text-2xl brand-font text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-store text-green-500"></i> Toko Bangunan
+                    </h3>
+                    <p class="text-xs text-gray-500 font-semibold" id="shop-subtitle">Pilih bangunan untuk zona ini</p>
+                </div>
+                <button onclick="UI.closeModal('modal-build')" class="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-9 h-9 flex justify-center items-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="bg-yellow-50 px-5 py-2.5 border-b border-yellow-200 flex justify-between items-center flex-shrink-0">
+                <span class="text-xs font-bold text-yellow-700 uppercase">Saldo Kamu:</span>
+                <span id="shop-coins" class="text-yellow-600 font-black text-lg">🪙 0</span>
+            </div>
+            <div id="shop-list" class="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar">
+                <!-- Shop items -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIRM BUILD -->
+    <div id="modal-confirm" class="hide fixed inset-0 bg-black/70 z-[110] flex justify-center items-center modal-overlay opacity-0 p-4">
+        <div id="modal-confirm-content" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center transform scale-90 modal-content-anim shadow-2xl">
+            <div id="confirm-icon" class="text-6xl mb-3 floating">🏠</div>
+            <h3 class="text-2xl font-black brand-font text-gray-800 mb-1" id="confirm-title">Bangun?</h3>
+            <p class="text-gray-500 font-medium mb-6 text-sm" id="confirm-desc">Konfirmasi pembangunan.</p>
+            <div class="flex gap-3">
+                <button onclick="UI.closeModal('modal-confirm')" class="flex-1 py-3 rounded-xl font-bold text-gray-600 bg-gray-100 hover:bg-gray-200 transition-colors">Batal</button>
+                <button id="btn-confirm-yes" class="flex-1 py-3 rounded-xl font-black text-white bg-green-500 hover:bg-green-600 game-btn">Ya, Bangun!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHALLENGE -->
+    <div id="modal-challenge" class="hide fixed inset-0 bg-blue-900/95 backdrop-blur-md z-[100] flex flex-col justify-center items-center p-4 modal-overlay opacity-0">
+        <div id="modal-challenge-content" class="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl relative transform scale-95 modal-content-anim flex flex-col max-h-[90vh]">
+            <div class="absolute -top-5 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-black px-6 py-1.5 rounded-full text-sm shadow-lg border-2 border-white flex items-center gap-2">
+                <i class="fas fa-brain"></i> CITY CHALLENGE
+            </div>
+            <div class="flex justify-between items-center mt-3 mb-3">
+                <div class="text-xs font-black text-indigo-500 uppercase bg-indigo-50 px-3 py-1 rounded-lg border border-indigo-100" id="q-topic">Topik</div>
+                <div class="text-xs font-bold text-gray-400 flex items-center gap-1"><i class="fas fa-fire text-orange-500"></i> Streak: <span id="q-streak" class="text-orange-600 font-black">0</span></div>
+            </div>
+            <div class="overflow-y-auto custom-scrollbar flex-1 mb-2 pr-1">
+                <p id="q-text" class="text-base font-bold text-gray-800 leading-relaxed mb-4">Pertanyaan...</p>
+                <div id="q-options" class="space-y-2.5">
+                    <!-- Options injected via JS -->
+                </div>
+                <div id="q-feedback" class="hide mt-4 p-4 rounded-2xl text-center border-2 border-gray-100 bg-gray-50 shadow-inner">
+                    <h3 id="q-feedback-title" class="font-black text-xl mb-1">BENAR!</h3>
+                    <div id="q-feedback-rewards" class="font-black text-sm mb-3 flex justify-center gap-3">
+                        <span class="text-yellow-600 bg-yellow-100 px-3 py-1 rounded-lg shadow-sm">🪙 +<span id="q-reward-coin">0</span></span>
+                        <span class="text-purple-600 bg-purple-100 px-3 py-1 rounded-lg shadow-sm">✨ +<span id="q-reward-xp">0</span></span>
+                    </div>
+                    <div class="text-left bg-white p-3 rounded-xl border border-gray-200 text-xs shadow-sm">
+                        <span class="font-bold text-indigo-500 block mb-1"><i class="fas fa-lightbulb text-yellow-500"></i> Penjelasan:</span>
+                        <p id="q-feedback-exp" class="font-medium text-gray-700 leading-relaxed"></p>
+                    </div>
+                    <button onclick="UI.closeChallenge()" class="game-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-3 rounded-xl mt-4 text-sm shadow-lg shadow-blue-500/30">
+                        LANJUTKAN <i class="fas fa-arrow-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL QUESTS -->
+    <div id="modal-quests" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-quests-content" class="bg-gray-50 w-full sm:w-[500px] h-[80vh] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+                <h3 class="font-black text-2xl brand-font text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-scroll text-purple-500"></i> Daily Quests
+                </h3>
+                <button onclick="UI.closeModal('modal-quests')" class="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-9 h-9 flex justify-center items-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="quest-list" class="p-4 space-y-3 overflow-y-auto flex-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- MODAL BADGES -->
+    <div id="modal-badges" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-badges-content" class="bg-gray-50 w-full sm:w-[500px] h-[80vh] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+                <h3 class="font-black text-2xl brand-font text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-medal text-yellow-500"></i> Mayor Badges
+                </h3>
+                <button onclick="UI.closeModal('modal-badges')" class="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-9 h-9 flex justify-center items-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="badge-grid" class="p-4 grid grid-cols-2 gap-3 overflow-y-auto flex-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- MODAL LEADERBOARD -->
+    <div id="modal-leaderboard" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-leaderboard-content" class="bg-gray-50 w-full sm:w-[500px] h-[85vh] sm:h-[650px] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 shadow-sm flex-shrink-0 flex justify-between items-center">
+                <div>
+                    <h3 class="font-black text-2xl brand-font text-gray-800 flex items-center gap-2">
+                        <i class="fas fa-trophy text-orange-500"></i> Peringkat Kota
+                    </h3>
+                    <p class="text-xs text-gray-500 font-semibold">Berdasarkan Total Score, XP & Akurasi</p>
+                </div>
+                <button onclick="UI.closeModal('modal-leaderboard')" class="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-9 h-9 flex justify-center items-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="leaderboard-list" class="p-4 space-y-2 overflow-y-auto flex-1 custom-scrollbar">
+                <div class="text-center text-gray-500 font-bold py-10"><i class="fas fa-spinner fa-spin text-2xl mb-2"></i><br>Memuat Data...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PROFILE -->
+    <div id="modal-profile" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-profile-content" class="bg-gray-50 w-full sm:w-[500px] h-[85vh] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 flex justify-between items-center flex-shrink-0">
+                <h3 class="font-black text-2xl brand-font text-gray-800 flex items-center gap-2">
+                    <i class="fas fa-user-shield text-indigo-500"></i> Profil Mayor
+                </h3>
+                <button onclick="UI.closeModal('modal-profile')" class="text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-9 h-9 flex justify-center items-center"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="profile-body" class="p-5 space-y-4 overflow-y-auto flex-1 custom-scrollbar"></div>
+        </div>
+    </div>
+
+    <!-- MODAL BUILDING INFO -->
+    <div id="modal-building-info" class="hide fixed inset-0 bg-gray-900/60 backdrop-blur-sm z-[100] flex justify-center items-end sm:items-center modal-overlay opacity-0">
+        <div id="modal-building-info-content" class="bg-gray-50 w-full sm:w-[400px] rounded-t-3xl sm:rounded-3xl flex flex-col transform translate-y-full modal-content-anim shadow-2xl">
+            <div class="p-5 bg-white rounded-t-3xl sm:rounded-3xl border-b border-gray-100 shadow-sm relative">
+                <button onclick="UI.closeModal('modal-building-info')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-700 bg-gray-100 rounded-full w-8 h-8 flex justify-center items-center"><i class="fas fa-times"></i></button>
+                <div class="flex flex-col items-center text-center mt-2">
+                    <div id="b-info-icon" class="text-6xl mb-2 bg-blue-50 w-24 h-24 flex items-center justify-center rounded-2xl border-4 border-blue-100 floating">🏠</div>
+                    <h3 id="b-info-name" class="font-black text-2xl brand-font text-gray-800">Nama Gedung</h3>
+                    <p id="b-info-desc" class="text-xs text-gray-500 font-bold mb-3">Area: Residential</p>
+                    <div class="flex gap-2 mb-4">
+                        <span class="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full border border-blue-100">🏆 City Score: +<span id="b-info-score">0</span></span>
+                    </div>
+                    <div class="w-full bg-indigo-50 border-2 border-indigo-100 rounded-2xl p-4 text-left">
+                        <h4 class="font-black text-indigo-800 text-sm mb-1"><i class="fas fa-brain text-purple-500"></i> Fasilitas Edukasi</h4>
+                        <p id="b-info-challenge-desc" class="text-xs text-indigo-600 font-medium mb-3">Selesaikan challenge khusus dengan topik area ini.</p>
+                        <button id="b-info-challenge-btn" class="w-full game-btn bg-indigo-600 hover:bg-indigo-700 text-white font-black py-3 rounded-xl text-sm shadow-lg shadow-indigo-500/30">
+                            AMBIL CHALLENGE
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EVENT -->
+    <div id="modal-event" class="hide fixed inset-0 bg-red-900/90 backdrop-blur-md z-[120] flex justify-center items-center p-4 modal-overlay opacity-0">
+        <div id="modal-event-content" class="bg-white w-full max-w-sm rounded-3xl p-6 text-center transform scale-90 modal-content-anim shadow-2xl relative border-4 border-red-500">
+            <div class="absolute -top-6 left-1/2 transform -translate-x-1/2 bg-red-500 text-white font-black px-4 py-1 rounded-full text-xs shadow-lg border-2 border-white animate-pulse">
+                ⚠️ CITY EVENT
+            </div>
+            <div id="event-icon" class="text-6xl mb-3 floating">⚡</div>
+            <h3 class="text-2xl font-black brand-font text-gray-800 mb-2" id="event-title">Pemadaman!</h3>
+            <p class="text-gray-600 font-medium mb-6 text-sm" id="event-desc">Listrik padam, jawab kuis untuk menyalakan!</p>
+            <button id="btn-event-action" class="w-full py-3 rounded-xl font-black text-white bg-red-500 hover:bg-red-600 game-btn shadow-lg shadow-red-500/40">Selesaikan Masalah!</button>
+        </div>
+    </div>
+
+    <!-- MODAL WIN SCREEN / ENDGAME (Phase 5) -->
+    <div id="modal-win" class="hide fixed inset-0 bg-yellow-900/90 backdrop-blur-md z-[200] flex justify-center items-center p-4 modal-overlay opacity-0">
+        <div id="modal-win-content" class="bg-gradient-to-b from-yellow-50 to-white w-full max-w-md rounded-3xl p-6 text-center transform scale-90 modal-content-anim shadow-[0_0_50px_rgba(234,179,8,0.5)] border-4 border-yellow-400 relative overflow-hidden">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-yellow-300 rounded-full opacity-30 animate-pulse"></div>
+            <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-yellow-400 rounded-full opacity-30 animate-pulse"></div>
+            
+            <div class="text-7xl mb-4 floating relative z-10">👑</div>
+            <h2 class="text-3xl font-black brand-font text-yellow-600 mb-1 relative z-10 drop-shadow-sm">CONGRATULATIONS!</h2>
+            <h3 class="text-xl font-bold text-gray-800 mb-4 relative z-10">Smart City Berhasil Dibangun!</h3>
+            <p class="text-gray-600 font-medium text-sm mb-6 relative z-10 leading-relaxed">
+                Luar biasa, Mayor! Kamu telah menyelesaikan misi utama dengan membangun <b class="text-indigo-600">City Hall</b>. Kotamu kini telah berevolusi menjadi Smart City seutuhnya!
+            </p>
+            
+            <div class="bg-white p-4 rounded-2xl border-2 border-yellow-200 shadow-sm space-y-2 mb-6 relative z-10 text-left">
+                <h4 class="font-black text-yellow-700 text-sm mb-2 text-center border-b border-yellow-100 pb-2">🏆 FINAL STATISTICS</h4>
+                <div class="flex justify-between text-xs font-bold text-gray-600"><span>Mayor:</span> <span class="text-gray-900 uppercase" id="win-name">-</span></div>
+                <div class="flex justify-between text-xs font-bold text-gray-600"><span>Level Akhir:</span> <span class="text-indigo-600" id="win-level">0</span></div>
+                <div class="flex justify-between text-xs font-bold text-gray-600"><span>Final City Score:</span> <span class="text-blue-600" id="win-score">0</span></div>
+                <div class="flex justify-between text-xs font-bold text-gray-600"><span>Total Gedung:</span> <span class="text-green-600" id="win-buildings">0</span></div>
+            </div>
+            
+            <button onclick="UI.closeModal('modal-win')" class="w-full relative z-10 py-3.5 rounded-xl font-black text-white bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 game-btn shadow-lg shadow-yellow-500/40 text-lg">
+                TERUS BERMAIN!
+            </button>
+        </div>
+    </div>
+
+    <!-- ADMIN SCREEN -->
+    <div id="admin-screen" class="hide fixed inset-0 bg-gray-100 z-[200] flex flex-col h-screen overflow-hidden">
+        <header class="bg-indigo-700 text-white p-4 shadow-md flex justify-between items-center z-10">
+            <h2 class="font-black text-xl brand-font"><i class="fas fa-chart-pie mr-2"></i> Admin Dashboard</h2>
+            <button onclick="Admin.logout()" class="bg-indigo-800 hover:bg-indigo-900 px-4 py-2 rounded-xl text-sm font-bold transition-colors">Tutup</button>
+        </header>
+        <main class="flex-1 overflow-y-auto p-4 custom-scrollbar">
+            <div id="admin-loading" class="text-center py-20 text-indigo-500">
+                <i class="fas fa-circle-notch fa-spin text-5xl mb-4"></i>
+                <h3 class="font-bold text-xl">Menyinkronkan Data Analytics...</h3>
+            </div>
+            
+            <div id="admin-content" class="hide max-w-4xl mx-auto space-y-6 pb-10">
+                <!-- Top Stats -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 block mb-1">Total Siswa</span>
+                        <div class="text-2xl font-black text-indigo-600" id="adm-tot-students">0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 block mb-1">Soal Terjawab</span>
+                        <div class="text-2xl font-black text-blue-600" id="adm-tot-answered">0</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 block mb-1">Rata-rata Akurasi</span>
+                        <div class="text-2xl font-black text-green-600" id="adm-avg-acc">0%</div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+                        <span class="text-xs font-bold text-gray-500 block mb-1">Top Player Rank 1</span>
+                        <div class="text-lg font-black text-orange-500 truncate" id="adm-top-player">-</div>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
+                    <h3 class="font-black text-gray-800 mb-4 border-b pb-2"><i class="fas fa-chart-bar text-indigo-500"></i> Akurasi Pemahaman per Topik</h3>
+                    <div class="relative h-64 w-full">
+                        <canvas id="accuracyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. CONFIG & SYSTEM
+        // ==========================================
+        const SCRIPT_URL = 'URL_WEB_APP_ANDA_DISINI'; // Ganti dengan URL deployment Web App GAS Anda
+        
+        const LevelConfig = {
+            1: 0, 2: 300, 3: 700, 4: 1200, 5: 1800, 
+            6: 2500, 7: 3500, 8: 5000, 9: 7000, 10: 10000
+        };
+
+        const CityLevels = [
+            { minScore: 0, title: "🌱 Empty Land" },
+            { minScore: 200, title: "🏘️ Small Village" },
+            { minScore: 600, title: "🏙️ Growing Town" },
+            { minScore: 1200, title: "🏢 Modern City" },
+            { minScore: 2000, title: "💻 Digital City" },
+            { minScore: 3500, title: "🌐 Smart City" },
+            { minScore: 5000, title: "🤖 Future City" }
+        ];
+
+        const Zones = [
+            { id: "residential", name: "Residential", icon: "🏠", minLevel: 1, minScore: 0 },
+            { id: "education", name: "Education", icon: "🏫", minLevel: 3, minScore: 100 },
+            { id: "technology", name: "Technology", icon: "💻", minLevel: 5, minScore: 500 },
+            { id: "industry", name: "Industry", icon: "🏭", minLevel: 7, minScore: 1000 },
+            { id: "smartcity", name: "Smart City", icon: "🌐", minLevel: 10, minScore: 2500 }
+        ];
+
+        const State = {
+            player: null,
+            questions: [],
+            buildings: [],
+            quests: [],
+            badges: [],
+            events: [],
+            currentZone: "residential",
+            currentQuestion: null,
+            soundEnabled: true,
+            isSaving: false,
+            actionCount: 0
+        };
+
+        const SFX = {
+            ctx: new (window.AudioContext || window.webkitAudioContext)(),
+            play(type) {
+                if(!State.soundEnabled) return;
+                if(this.ctx.state === 'suspended') this.ctx.resume();
+                const osc = this.ctx.createOscillator();
+                const gain = this.ctx.createGain();
+                osc.connect(gain); gain.connect(this.ctx.destination);
+                
+                if(type === 'click') {
+                    osc.frequency.setValueAtTime(500, this.ctx.currentTime);
+                    osc.frequency.exponentialRampToValueAtTime(700, this.ctx.currentTime + 0.08);
+                    gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.08);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.08);
+                } else if(type === 'correct') {
+                    osc.frequency.setValueAtTime(600, this.ctx.currentTime);
+                    osc.frequency.setValueAtTime(900, this.ctx.currentTime + 0.1);
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+                } else if(type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(250, this.ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(150, this.ctx.currentTime + 0.25);
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.25);
+                } else if(type === 'build') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(180, this.ctx.currentTime);
+                    osc.frequency.linearRampToValueAtTime(120, this.ctx.currentTime + 0.15);
+                    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.15);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.15);
+                } else if(type === 'levelup') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(440, this.ctx.currentTime); 
+                    osc.frequency.setValueAtTime(554.37, this.ctx.currentTime + 0.1); 
+                    osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.2); 
+                    osc.frequency.setValueAtTime(880, this.ctx.currentTime + 0.3); 
+                    gain.gain.setValueAtTime(0.3, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+                    osc.start(); osc.stop(this.ctx.currentTime + 0.6);
+                } else if(type === 'win') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, this.ctx.currentTime); 
+                    osc.frequency.setValueAtTime(659.25, this.ctx.currentTime + 0.15); 
+                    osc.frequency.setValueAtTime(783.99, this.ctx.currentTime + 0.3); 
+                    osc.frequency.setValueAtTime(1046.50, this.ctx.currentTime + 0.45); 
+                    gain.gain.setValueAtTime(0.4, this.ctx.currentTime);
+                    gain.gain.linearRampToValueAtTime(0.01, this.ctx.currentTime + 1.5);
+                    osc.start(); osc.stop(this.ctx.currentTime + 1.5);
+                }
+            },
+            toggle() {
+                State.soundEnabled = !State.soundEnabled;
+                document.querySelector('#btn-sound i').className = State.soundEnabled ? 'fas fa-volume-up' : 'fas fa-volume-mute';
+                UI.showToast(State.soundEnabled ? "Suara Dinyalakan 🔊" : "Suara Dimatikan 🔇");
+            }
+        };
+
+        const API = {
+            async get(action) {
+                if(!SCRIPT_URL || SCRIPT_URL.includes('URL_WEB_APP')) return null;
+                try {
+                    const res = await fetch(`${SCRIPT_URL}?action=${action}`);
+                    return await res.json();
+                } catch(e) { return null; }
+            },
+            async post(action, payload) {
+                if(!SCRIPT_URL || SCRIPT_URL.includes('URL_WEB_APP')) return null;
+                try {
+                    const form = new URLSearchParams();
+                    form.append('action', action);
+                    form.append('data', JSON.stringify(payload));
+                    const res = await fetch(SCRIPT_URL, { method: 'POST', body: form });
+                    return await res.json();
+                } catch(e) { return null; }
+            }
+        };
+
+        // ==========================================
+        // 3. GAME LOGIC & SYSTEM
+        // ==========================================
+        const Game = {
+            async init() {
+                UI.showScreen('loading-screen');
+                const res = await API.get('getGameData');
+                if(res && res.success) {
+                    State.questions = res.questions;
+                    State.buildings = res.buildings;
+                    State.quests = res.quests;
+                    State.badges = res.badges;
+                    State.events = res.events;
+                } else {
+                    State.questions = [
+                        {QUESTION_ID:"Q1", TOPIC:"Dekomposisi", QUESTION:"Kamu ingin membuat aplikasi absensi siswa. Langkah pertama yang paling tepat adalah...", OPTION_A:"Desain warna UI", OPTION_B:"Pecah pekerjaan jadi modul-modul kecil", OPTION_C:"Ketik kode langsung", OPTION_D:"Membeli server mahal", ANSWER:"B", EXPLANATION:"Dekomposisi adalah memecah masalah/proyek besar menjadi bagian yang lebih kecil agar mudah diselesaikan.", COINS:100, XP:20},
+                        {QUESTION_ID:"Q2", TOPIC:"Algoritma", QUESTION:"Langkah berurutan sistematis untuk menyelesaikan masalah disebut...", OPTION_A:"Abstraksi", OPTION_B:"Dekomposisi", OPTION_C:"Algoritma", OPTION_D:"Pengenalan Pola", ANSWER:"C", EXPLANATION:"Algoritma menjamin langkah terstruktur dari awal hingga akhir, seperti resep masakan.", COINS:100, XP:20},
+                        {QUESTION_ID:"Q3", TOPIC:"Hardware", QUESTION:"Otak utama komputer yang bertugas memproses semua instruksi adalah...", OPTION_A:"Monitor", OPTION_B:"RAM", OPTION_C:"Hardisk", OPTION_D:"CPU", ANSWER:"D", EXPLANATION:"Central Processing Unit (CPU) adalah pemroses utama instruksi dalam komputer.", COINS:120, XP:25},
+                        {QUESTION_ID:"Q4", TOPIC:"Pengenalan Pola", QUESTION:"Melihat kesamaan ciri-ciri pada beberapa masalah yang pernah diselesaikan sebelumnya disebut dengan...", OPTION_A:"Abstraksi", OPTION_B:"Pengenalan Pola", OPTION_C:"Dekomposisi", OPTION_D:"Coding", ANSWER:"B", EXPLANATION:"Pengenalan pola membantu kita menggunakan solusi yang sama untuk masalah yang mirip.", COINS:100, XP:20}
+                    ];
+                    State.buildings = [
+                        {BUILDING_ID:"B1", NAME:"Rumah Mungil", AREA:"residential", PRICE:100, CITY_SCORE:50, REQUIRED_LEVEL:1, ICON:"🏠"},
+                        {BUILDING_ID:"B2", NAME:"Taman Kota", AREA:"residential", PRICE:150, CITY_SCORE:80, REQUIRED_LEVEL:1, ICON:"🌳"},
+                        {BUILDING_ID:"B3", NAME:"Sekolah Dasar", AREA:"education", PRICE:300, CITY_SCORE:150, REQUIRED_LEVEL:3, ICON:"🏫"},
+                        {BUILDING_ID:"B4", NAME:"Perpustakaan", AREA:"education", PRICE:400, CITY_SCORE:180, REQUIRED_LEVEL:3, ICON:"📚"},
+                        {BUILDING_ID:"B5", NAME:"Computer Lab", AREA:"technology", PRICE:700, CITY_SCORE:300, REQUIRED_LEVEL:5, ICON:"💻"},
+                        {BUILDING_ID:"B6", NAME:"Internet Hub", AREA:"technology", PRICE:900, CITY_SCORE:350, REQUIRED_LEVEL:5, ICON:"🌐"},
+                        {BUILDING_ID:"B7", NAME:"Pabrik Modern", AREA:"industry", PRICE:1200, CITY_SCORE:450, REQUIRED_LEVEL:7, ICON:"🏭"},
+                        {BUILDING_ID:"B8", NAME:"Smart Traffic Hub", AREA:"smartcity", PRICE:2500, CITY_SCORE:800, REQUIRED_LEVEL:10, ICON:"🚦"},
+                        {BUILDING_ID:"B9", NAME:"City Hall", AREA:"smartcity", PRICE:5000, CITY_SCORE:1500, REQUIRED_LEVEL:10, ICON:"🏛️"}
+                    ];
+                    State.quests = [
+                        {QUEST_ID:"QST1", TITLE:"Jawab 3 Pertanyaan", TARGET_TYPE:"answers", TARGET_COUNT:3, PROGRESS:0, COINS:300, XP:100, COMPLETED:false},
+                        {QUEST_ID:"QST2", TITLE:"Dapatkan Streak 3", TARGET_TYPE:"streak", TARGET_COUNT:3, PROGRESS:0, COINS:250, XP:50, COMPLETED:false},
+                        {QUEST_ID:"QST3", TITLE:"Bangun 2 Gedung", TARGET_TYPE:"buildings", TARGET_COUNT:2, PROGRESS:0, COINS:300, XP:100, COMPLETED:false}
+                    ];
+                    State.badges = [
+                        {BADGE_ID:"BDG1", NAME:"First Builder", DESC:"Bangun gedung pertamamu", ICON:"🏠"},
+                        {BADGE_ID:"BDG2", NAME:"Brain Master", DESC:"Jawab 5 soal dengan benar", ICON:"🧠"},
+                        {BADGE_ID:"BDG3", NAME:"Perfect Streak", DESC:"Mencapai streak 5", ICON:"🔥"},
+                        {BADGE_ID:"BDG4", NAME:"Education Mayor", DESC:"Buka zona Education", ICON:"🏫"},
+                        {BADGE_ID:"BDG5", NAME:"Tech Mayor", DESC:"Buka zona Technology", ICON:"💻"},
+                        {BADGE_ID:"BDG6", NAME:"Mayor of the Future", DESC:"Membangun City Hall!", ICON:"👑"}
+                    ];
+                    State.events = [
+                        {EVENT_ID:"EV1", NAME:"Pemadaman Listrik!", DESCRIPTION:"Genset kota rusak. Jawab tantangan darurat untuk menyalakan listrik kembali!", TYPE:"challenge", REWARD_COINS:150, ICON:"⚡"},
+                        {EVENT_ID:"EV2", NAME:"Macet Total!", DESCRIPTION:"Traffic light offline. Bantu atur algoritma lalu lintas!", TYPE:"challenge", REWARD_COINS:150, ICON:"🚦"},
+                        {EVENT_ID:"EV3", NAME:"Festival Kota!", DESCRIPTION:"Warga merayakan pencapaianmu. Terimalah donasi koin ini!", TYPE:"reward", REWARD_COINS:300, ICON:"🎉"}
+                    ];
+                }
+                setTimeout(() => UI.showScreen('login-screen'), 800);
+            },
+
+            async login() {
+                SFX.play('click');
+                const nama = document.getElementById('login-name').value.trim();
+                const kelas = document.getElementById('login-class').value;
+                if(!nama) return UI.showToast("Nama Mayor harus diisi! ❌", "error");
+
+                UI.showScreen('loading-screen');
+                const res = await API.post('login', {nama, kelas});
+                if(res && res.success) {
+                    State.player = res.player;
+                    if(typeof State.player.buildings === 'string') State.player.buildings = State.player.buildings ? State.player.buildings.split(',') : [];
+                    if(typeof State.player.badges === 'string') State.player.badges = State.player.badges ? State.player.badges.split(',') : [];
+                    if(typeof State.player.stats === 'string') State.player.stats = JSON.parse(State.player.stats || '{"answered":0,"correct":0,"wrong":0}');
+                } else {
+                    let local = localStorage.getItem('smartcity_p2_' + nama);
+                    if(local) {
+                        State.player = JSON.parse(local);
+                        if(typeof State.player.buildings === 'string') State.player.buildings = State.player.buildings ? State.player.buildings.split(',') : [];
+                        if(typeof State.player.badges === 'string') State.player.badges = State.player.badges ? State.player.badges.split(',') : [];
+                    } else {
+                        State.player = {
+                            id: "P_" + Date.now(), nama, kelas, level: 1, xp: 0, coins: 500, city_score: 0,
+                            streak: 0, max_streak: 0, buildings: [], quests_completed: 0, badges: [],
+                            stats: { answered: 0, correct: 0, wrong: 0 }
+                        };
+                    }
+                }
+                
+                State.player.streak = 0;
+                UI.showToast(`Selamat datang kembali, Mayor ${nama}! 🎉`, "success");
+                this.startGame();
+            },
+
+            startGame() {
+                UI.updateDashboard();
+                UI.renderCity();
+                UI.showScreen('dashboard-screen');
+                this.checkBadges();
+            },
+
+            async saveProgress() {
+                if(State.isSaving) return;
+                State.isSaving = true;
+                const pClone = JSON.parse(JSON.stringify(State.player));
+                pClone.stats = JSON.stringify(pClone.stats);
+                pClone.buildings = Array.isArray(pClone.buildings) ? pClone.buildings.join(',') : pClone.buildings;
+                pClone.badges = Array.isArray(pClone.badges) ? pClone.badges.join(',') : pClone.badges;
+
+                const res = await API.post('save', pClone);
+                if(!res || !res.success) {
+                    localStorage.setItem('smartcity_p2_' + State.player.nama, JSON.stringify(State.player));
+                }
+                State.isSaving = false;
+            },
+
+            startChallenge(topicFilter = null) {
+                SFX.play('click');
+                if(!State.questions || State.questions.length === 0) return UI.showToast("Bank soal kosong! ❌", "error");
+                
+                let pool = State.questions;
+                if(topicFilter) {
+                    const filtered = pool.filter(q => q.TOPIC && q.TOPIC.toLowerCase() === topicFilter.toLowerCase());
+                    if(filtered.length > 0) {
+                        pool = filtered;
+                    } else {
+                        UI.showToast(`Soal khusus topik ${topicFilter} belum tersedia. Menampilkan soal acak!`, 'info');
+                    }
+                }
+                
+                const qIndex = Math.floor(Math.random() * pool.length);
+                State.currentQuestion = pool[qIndex];
+                
+                UI.renderChallenge();
+                UI.openModal('modal-challenge');
+            },
+            
+            answerChallenge(selectedOption) {
+                if(!State.currentQuestion) return;
+                const q = State.currentQuestion;
+                const isCorrect = (selectedOption === q.ANSWER);
+                const feedbackDiv = document.getElementById('q-feedback');
+                const optionsDiv = document.getElementById('q-options');
+                
+                State.player.stats.answered = (State.player.stats.answered || 0) + 1;
+                State.player.stats.topics = State.player.stats.topics || {};
+                State.player.stats.topics[q.TOPIC] = State.player.stats.topics[q.TOPIC] || { correct: 0, total: 0 };
+                State.player.stats.topics[q.TOPIC].total += 1;
+                
+                Array.from(optionsDiv.children).forEach(btn => btn.disabled = true);
+                
+                const titleEl = document.getElementById('q-feedback-title');
+                const expEl = document.getElementById('q-feedback-exp');
+                const rewardCoinEl = document.getElementById('q-reward-coin');
+                const rewardXpEl = document.getElementById('q-reward-xp');
+                
+                let coinGain = Number(q.COINS || 100);
+                let xpGain = Number(q.XP || 20);
+                
+                if(isCorrect) {
+                    State.player.stats.correct = (State.player.stats.correct || 0) + 1;
+                    State.player.stats.topics[q.TOPIC].correct += 1;
+                    
+                    State.player.streak += 1;
+                    if(State.player.streak > (State.player.max_streak || 0)) {
+                        State.player.max_streak = State.player.streak;
+                    }
+                    
+                    if(State.player.streak === 3) { coinGain += 100; UI.showToast("🔥 Streak 3! +100 Bonus Coins!", "success"); }
+                    if(State.player.streak === 5) { coinGain += 250; UI.showToast("🔥 Streak 5! +250 Bonus Coins!", "success"); }
+                    if(State.player.streak >= 10) { coinGain += 500; UI.showToast("🔥 Streak 10! +500 Bonus Coins!", "success"); }
+
+                    State.player.coins += coinGain;
+                    State.player.xp += xpGain;
+
+                    SFX.play('correct');
+                    titleEl.innerText = "🎉 BENAR!";
+                    titleEl.className = "font-black text-xl mb-1 text-green-600";
+                    rewardCoinEl.innerText = coinGain;
+                    rewardXpEl.innerText = xpGain;
+                    
+                    UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2, `+${coinGain} 🪙`, 'yellow');
+                    
+                    this.checkLevelUp();
+                    this.checkQuests('answers', 1);
+                    this.checkQuests('streak', State.player.streak);
+                    this.checkBadges();
+                } else {
+                    State.player.stats.wrong = (State.player.stats.wrong || 0) + 1;
+                    State.player.streak = 0;
+                    SFX.play('wrong');
+                    titleEl.innerText = "❌ SALAH!";
+                    titleEl.className = "font-black text-xl mb-1 text-red-600";
+                    rewardCoinEl.innerText = "0";
+                    rewardXpEl.innerText = "0";
+                }
+                
+                expEl.innerText = q.EXPLANATION || "Tidak ada penjelasan tambahan.";
+                feedbackDiv.classList.remove('hide');
+                document.getElementById('q-streak').innerText = State.player.streak;
+                UI.updateDashboard();
+                this.saveProgress();
+            },
+
+            checkLevelUp() {
+                let nextXpNeeded = LevelConfig[State.player.level + 1];
+                let leveledUp = false;
+                while(nextXpNeeded && State.player.xp >= nextXpNeeded) {
+                    State.player.level += 1;
+                    leveledUp = true;
+                    nextXpNeeded = LevelConfig[State.player.level + 1];
+                }
+                if(leveledUp) {
+                    SFX.play('levelup'); 
+                    UI.showToast(`🎉 LEVEL UP KE LEVEL ${State.player.level}!`, "success");
+                    UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2 - 50, `LEVEL ${State.player.level}!`, 'purple');
+                }
+                UI.updateDashboard();
+            },
+
+            checkQuests(type, count = 1) {
+                State.quests.forEach(q => {
+                    if(!q.COMPLETED && q.TARGET_TYPE === type) {
+                        q.PROGRESS = type === 'streak' ? Math.max(q.PROGRESS, count) : (q.PROGRESS + count);
+                        if(q.PROGRESS >= q.TARGET_COUNT) {
+                            q.PROGRESS = q.TARGET_COUNT;
+                            q.COMPLETED = true;
+                            State.player.coins += Number(q.COINS);
+                            State.player.xp += Number(q.XP);
+                            State.player.quests_completed = (State.player.quests_completed || 0) + 1;
+                            SFX.play('correct');
+                            UI.showToast(`📜 Quest Selesai: ${q.TITLE}! (+${q.COINS} 🪙)`, "success");
+                            this.checkLevelUp();
+                        }
+                    }
+                });
+                UI.updateQuestNotification();
+            },
+
+            checkBadges() {
+                const p = State.player;
+                const giveBadge = (id) => {
+                    if(!p.badges.includes(id)) {
+                        p.badges.push(id);
+                        const bObj = State.badges.find(b => b.BADGE_ID === id);
+                        SFX.play('correct');
+                        UI.showToast(`🏆 BADGE UNLOCKED: ${bObj ? bObj.NAME : id}!`, "success");
+                    }
+                };
+
+                if(p.buildings.length >= 1) giveBadge('BDG1');
+                if(p.stats && p.stats.correct >= 5) giveBadge('BDG2');
+                if(p.max_streak >= 5) giveBadge('BDG3');
+                
+                const hasEducation = p.buildings.some(bId => { const b = State.buildings.find(x => x.BUILDING_ID === bId); return b && b.AREA === 'education'; });
+                if(hasEducation) giveBadge('BDG4');
+                
+                const hasTech = p.buildings.some(bId => { const b = State.buildings.find(x => x.BUILDING_ID === bId); return b && b.AREA === 'technology'; });
+                if(hasTech) giveBadge('BDG5');
+            },
+
+            checkRandomEvent() {
+                if(!State.events || State.events.length === 0) return;
+                const ev = State.events[Math.floor(Math.random() * State.events.length)];
+                
+                document.getElementById('event-icon').innerText = ev.ICON;
+                document.getElementById('event-title').innerText = ev.NAME;
+                document.getElementById('event-desc').innerText = ev.DESCRIPTION;
+                
+                const btn = document.getElementById('btn-event-action');
+                if(ev.TYPE === 'challenge') {
+                    btn.innerText = "Selesaikan Tantangan!";
+                    btn.onclick = () => {
+                        UI.closeModal('modal-event');
+                        Game.startChallenge();
+                    };
+                } else {
+                    btn.innerText = "Ambil Hadiah!";
+                    btn.onclick = () => {
+                        State.player.coins += Number(ev.REWARD_COINS || 200);
+                        UI.updateDashboard();
+                        UI.showToast(`🎁 Event Selesai! +${ev.REWARD_COINS} Coins`, "success");
+                        UI.closeModal('modal-event');
+                        Game.saveProgress();
+                    };
+                }
+                UI.openModal('modal-event');
+                State.actionCount = 0;
+            },
+
+            confirmBuild(buildingId) {
+                SFX.play('click');
+                const b = State.buildings.find(x => x.BUILDING_ID === buildingId);
+                if(!b) return;
+
+                document.getElementById('confirm-icon').innerText = b.ICON;
+                document.getElementById('confirm-title').innerText = `Bangun ${b.NAME}?`;
+                document.getElementById('confirm-desc').innerHTML = `Biaya: <span class="text-yellow-600 font-bold">🪙 ${b.PRICE} Coins</span><br>City Score: <span class="text-blue-600 font-bold">+${b.CITY_SCORE}</span>`;
+                
+                document.getElementById('btn-confirm-yes').onclick = () => {
+                    this.executeBuild(b);
+                };
+                UI.openModal('modal-confirm');
+            },
+
+            executeBuild(b) {
+                if(State.player.coins < b.PRICE) return UI.showToast("🪙 Coins tidak cukup!", "error");
+
+                State.player.coins -= b.PRICE;
+                State.player.city_score += Number(b.CITY_SCORE);
+                State.player.buildings.push(b.BUILDING_ID);
+
+                SFX.play('build');
+                UI.updateDashboard();
+                UI.renderCity();
+                UI.closeModal('modal-confirm');
+                UI.closeModal('modal-build');
+
+                UI.spawnFloatingText(window.innerWidth/2, window.innerHeight/2, `+${b.CITY_SCORE} Score!`, 'blue');
+                UI.showToast(`🏗️ ${b.NAME} berhasil dibangun!`, "success");
+
+                if (b.NAME === "City Hall" && !State.player.badges.includes('BDG6')) {
+                    setTimeout(() => UI.showWinScreen(), 1000); 
+                    if (!State.player.badges.includes('BDG6')) {
+                        State.player.badges.push('BDG6'); 
+                    }
+                }
+
+                this.checkQuests('buildings', 1);
+                this.checkBadges();
+                this.saveProgress();
+
+                State.actionCount++;
+                if(State.actionCount >= 3) this.checkRandomEvent();
+            }
+        };
+
+        // ==========================================
+        // 4. UI CONTROLLER
+        // ==========================================
+        const UI = {
+            screens: ['loading-screen', 'login-screen', 'dashboard-screen'],
+            showScreen(id) {
+                this.screens.forEach(s => document.getElementById(s).classList.add('hide'));
+                document.getElementById(id).classList.remove('hide');
+            },
+            openModal(id) {
+                const modal = document.getElementById(id);
+                const content = document.getElementById(id + '-content');
+                modal.classList.remove('hide');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    if(content) content.classList.remove('translate-y-full', 'scale-90', 'scale-95');
+                }, 10);
+            },
+            closeModal(id) {
+                SFX.play('click');
+                const modal = document.getElementById(id);
+                const content = document.getElementById(id + '-content');
+                modal.classList.add('opacity-0');
+                if(content) content.classList.add('translate-y-full', 'scale-90', 'scale-95');
+                setTimeout(() => modal.classList.add('hide'), 300);
+            },
+            closeChallenge() {
+                this.closeModal('modal-challenge');
+                document.getElementById('q-feedback').classList.add('hide');
+            },
+            showToast(msg, type = 'info') {
+                const container = document.getElementById('toast-container');
+                const toast = document.createElement('div');
+                let color = 'text-blue-700 border-blue-200 bg-blue-50';
+                if(type === 'error') color = 'text-red-700 border-red-200 bg-red-50';
+                if(type === 'success') color = 'text-green-700 border-green-200 bg-green-50';
+                toast.className = `toast border-2 ${color}`;
+                toast.innerHTML = msg;
+                container.appendChild(toast);
+                setTimeout(() => toast.remove(), 2500);
+            },
+            spawnFloatingText(x, y, text, type='yellow') {
+                const el = document.createElement('div');
+                el.className = 'floating-reward';
+                el.style.left = `50%`; el.style.top = `50%`;
+                el.style.transform = `translate(-50%, -50%)`;
+                el.innerText = text;
+                if(type === 'orange') el.style.color = '#EA580C';
+                else if(type === 'purple') el.style.color = '#8B5CF6';
+                else if(type === 'blue') el.style.color = '#3B82F6';
+                else el.style.color = '#F59E0B';
+                document.body.appendChild(el);
+                setTimeout(() => el.remove(), 1500);
+            },
+
+            switchNav(nav) {
+                SFX.play('click');
+                if(nav === 'city') {
+                    // Stay on city map
+                } else if(nav === 'quest') {
+                    this.renderQuests();
+                    this.openModal('modal-quests');
+                } else if(nav === 'leaderboard') {
+                    this.openModal('modal-leaderboard');
+                    this.fetchLeaderboard();
+                } else if(nav === 'profile') {
+                    this.renderProfile();
+                    this.openModal('modal-profile');
+                }
+            },
+            updateDashboard() {
+                const p = State.player;
+                if(!p) return;
+                document.getElementById('ui-name').innerText = p.nama;
+                document.getElementById('ui-level').innerText = p.level;
+                document.getElementById('ui-coins').innerText = p.coins;
+                document.getElementById('ui-score').innerText = p.city_score;
+                document.getElementById('ui-xp').innerText = p.xp;
+
+                let nextXP = LevelConfig[p.level + 1] || (LevelConfig[p.level] + 1000);
+                let currentLvXP = LevelConfig[p.level] || 0;
+                let pct = Math.min(100, Math.max(0, ((p.xp - currentLvXP) / (nextXP - currentLvXP)) * 100));
+                document.getElementById('ui-xp-max').innerText = nextXP;
+                document.getElementById('ui-xp-bar').style.width = pct + '%';
+
+                let cityRankTitle = CityLevels[0].title;
+                for(let i = CityLevels.length - 1; i >= 0; i--) {
+                    if(p.city_score >= CityLevels[i].minScore) {
+                        cityRankTitle = CityLevels[i].title;
+                        break;
+                    }
+                }
+                document.getElementById('ui-city-rank').innerText = cityRankTitle;
+                this.renderZoneTabs();
+                this.renderClouds(); 
+            },
+            
+            renderClouds() {
+                const container = document.getElementById('clouds-container');
+                if(container.children.length > 0) return; 
+                
+                for(let i=0; i<3; i++) {
+                    const cloud = document.createElement('div');
+                    cloud.className = 'cloud-anim';
+                    cloud.innerText = '☁️';
+                    cloud.style.top = `${10 + (i * 20)}%`;
+                    cloud.style.fontSize = `${3 + Math.random() * 2}rem`;
+                    cloud.style.animationDuration = `${40 + Math.random() * 30}s`;
+                    cloud.style.animationDelay = `${-(Math.random() * 20)}s`;
+                    container.appendChild(cloud);
+                }
+            },
+
+            showWinScreen() {
+                SFX.play('win');
+                const p = State.player;
+                document.getElementById('win-name').innerText = p.nama;
+                document.getElementById('win-level').innerText = p.level;
+                document.getElementById('win-score').innerText = p.city_score;
+                document.getElementById('win-buildings').innerText = p.buildings.length;
+                this.openModal('modal-win');
+            },
+
+            renderZoneTabs() {
+                const container = document.getElementById('zone-tabs');
+                container.innerHTML = '';
+                Zones.forEach(z => {
+                    const isUnlocked = State.player.level >= z.minLevel || State.player.city_score >= z.minScore;
+                    const isActive = State.currentZone === z.id;
+                    const btn = document.createElement('button');
+                    btn.className = `px-3 py-1.5 rounded-xl font-bold text-xs flex items-center gap-1 flex-shrink-0 transition-all ${isActive ? 'bg-blue-600 text-white shadow-md' : (isUnlocked ? 'bg-white text-gray-700 border border-gray-200' : 'bg-gray-200 text-gray-400')}`;
+                    btn.innerHTML = `${z.icon} ${z.name} ${!isUnlocked ? '<i class="fas fa-lock ml-1 text-[9px]"></i>' : ''}`;
+                    btn.onclick = () => {
+                        SFX.play('click');
+                        State.currentZone = z.id;
+                        this.renderCity();
+                        this.renderZoneTabs();
+                    };
+                    container.appendChild(btn);
+                });
+            },
+            renderCity() {
+                const grid = document.getElementById('city-grid');
+                const lockedNotice = document.getElementById('zone-locked-notice');
+                const emptyState = document.getElementById('city-empty-state');
+                grid.innerHTML = '';
+
+                const zone = Zones.find(z => z.id === State.currentZone);
+                const isUnlocked = State.player.level >= zone.minLevel || State.player.city_score >= zone.minScore;
+
+                if(!isUnlocked) {
+                    lockedNotice.classList.remove('hide');
+                    emptyState.classList.add('hide');
+                    document.getElementById('locked-title').innerText = `${zone.icon} ${zone.name} Terkunci`;
+                    document.getElementById('locked-desc').innerText = `Zona ini membutuhkan pencapaian level ATAU skor kota yang lebih tinggi.`;
+                    document.getElementById('locked-requirement').innerText = `Syarat: Level ${zone.minLevel} ATAU City Score ${zone.minScore}`;
+                    return;
+                } else {
+                    lockedNotice.classList.add('hide');
+                }
+
+                const zoneBuildings = State.buildings.filter(b => b.AREA === State.currentZone);
+                const builtInZone = State.player.buildings.filter(bId => {
+                    const bObj = State.buildings.find(x => x.BUILDING_ID === bId);
+                    return bObj && bObj.AREA === State.currentZone;
+                });
+
+                if(builtInZone.length === 0) {
+                    emptyState.classList.remove('hide');
+                } else {
+                    emptyState.classList.add('hide');
+                }
+
+                for(let i = 0; i < Math.max(6, builtInZone.length + 2); i++) {
+                    if(i < builtInZone.length) {
+                        const bId = builtInZone[i];
+                        const b = State.buildings.find(x => x.BUILDING_ID === bId);
+                        const div = document.createElement('div');
+                        div.className = 'building-item';
+                        div.innerHTML = `
+                            <span>${b ? b.ICON : '🏠'}</span>
+                            <span class="building-name-small">${b ? b.NAME : 'Gedung'}</span>
+                        `;
+                        div.onclick = () => UI.showBuildingInfo(b);
+                        grid.appendChild(div);
+                    } else {
+                        const plot = document.createElement('div');
+                        plot.className = 'building-plot';
+                        plot.innerHTML = '<i class="fas fa-plus text-white/70 text-lg"></i>';
+                        plot.onclick = () => UI.showBuildShop();
+                        grid.appendChild(plot);
+                    }
+                }
+            },
+
+            showBuildShop() {
+                SFX.play('click');
+                const list = document.getElementById('shop-list');
+                document.getElementById('shop-coins').innerText = `🪙 ${State.player.coins}`;
+                document.getElementById('shop-subtitle').innerText = `Pembangunan di zona: ${State.currentZone.toUpperCase()}`;
+                list.innerHTML = '';
+
+                const available = State.buildings.filter(b => b.AREA === State.currentZone);
+                if(available.length === 0) {
+                    list.innerHTML = `<div class="text-center text-gray-400 font-bold py-8">Belum ada bangunan untuk zona ini.</div>`;
+                } else {
+                    available.forEach(b => {
+                        const countBuilt = State.player.buildings.filter(id => id === b.BUILDING_ID).length;
+                        const canBuy = State.player.level >= b.REQUIRED_LEVEL;
+                        const div = document.createElement('div');
+                        div.className = `bg-white p-3.5 rounded-2xl border-2 flex justify-between items-center shadow-sm ${!canBuy ? 'border-red-100 bg-red-50/40' : 'border-gray-100'}`;
+                        div.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">${b.ICON}</div>
+                                <div>
+                                    <h4 class="font-black text-gray-800 text-sm">${b.NAME}</h4>
+                                    <div class="flex gap-2 mt-0.5">
+                                        <span class="text-[10px] font-bold text-yellow-600">🪙 ${b.PRICE}</span>
+                                        <span class="text-[10px] font-bold text-blue-600">🏆 +${b.CITY_SCORE}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-end">
+                                ${!canBuy ? `<span class="text-[10px] font-bold text-red-500 bg-red-50 px-2 py-1 rounded-lg">Butuh Lvl ${b.REQUIRED_LEVEL}</span>` : 
+                                `<button onclick="Game.confirmBuild('${b.BUILDING_ID}')" class="game-btn bg-green-500 hover:bg-green-600 text-white font-black text-xs px-4 py-2 rounded-xl shadow-md">BUILD</button>`}
+                                ${countBuilt > 0 ? `<span class="text-[9px] font-bold text-gray-500 mt-1">Dimiliki: ${countBuilt}</span>` : ''}
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                }
+                this.openModal('modal-build');
+            },
+            showBuildingInfo(b) {
+                if(!b) return;
+                SFX.play('click');
+                document.getElementById('b-info-icon').innerText = b.ICON;
+                document.getElementById('b-info-name').innerText = b.NAME;
+                document.getElementById('b-info-desc').innerText = `Area: ${b.AREA.toUpperCase()} • Level Req: ${b.REQUIRED_LEVEL}`;
+                document.getElementById('b-info-score').innerText = b.CITY_SCORE;
+                
+                const btn = document.getElementById('b-info-challenge-btn');
+                btn.onclick = () => {
+                    UI.closeModal('modal-building-info');
+                    let topicMap = { residential: 'Dekomposisi', education: 'Algoritma', technology: 'Hardware', industry: 'Pengenalan Pola', smartcity: 'Internet' };
+                    Game.startChallenge(topicMap[b.AREA] || null);
+                };
+                this.openModal('modal-building-info');
+            },
+
+            renderChallenge() {
+                const q = State.currentQuestion;
+                if(!q) return;
+                document.getElementById('q-topic').innerText = q.TOPIC || 'Umum';
+                document.getElementById('q-streak').innerText = State.player.streak;
+                document.getElementById('q-text').innerText = q.QUESTION;
+                document.getElementById('q-feedback').classList.add('hide');
+
+                const optsDiv = document.getElementById('q-options');
+                optsDiv.innerHTML = '';
+                ['A', 'B', 'C', 'D'].forEach(optKey => {
+                    const optText = q['OPTION_' + optKey];
+                    if(!optText) return;
+                    const btn = document.createElement('button');
+                    btn.className = 'w-full text-left p-3.5 rounded-2xl border-2 border-gray-200 hover:border-indigo-500 hover:bg-indigo-50/50 font-bold text-gray-700 text-sm transition-all flex items-center gap-3 bg-white shadow-sm';
+                    btn.innerHTML = `<span class="w-7 h-7 bg-gray-100 rounded-xl flex items-center justify-center font-black text-indigo-600 flex-shrink-0">${optKey}</span> <span>${optText}</span>`;
+                    btn.onclick = () => Game.answerChallenge(optKey);
+                    optsDiv.appendChild(btn);
+                });
+            },
+            renderQuests() {
+                const list = document.getElementById('quest-list');
+                list.innerHTML = '';
+                State.quests.forEach(q => {
+                    const pct = Math.min(100, Math.round((q.PROGRESS / q.TARGET_COUNT) * 100));
+                    const div = document.createElement('div');
+                    div.className = `p-4 rounded-2xl border-2 flex flex-col gap-2 ${q.COMPLETED ? 'bg-green-50/50 border-green-200' : 'bg-white border-gray-100'}`;
+                    div.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <h4 class="font-black text-gray-800 text-sm">${q.TITLE}</h4>
+                            <span class="text-xs font-bold ${q.COMPLETED ? 'text-green-600' : 'text-purple-600'}">${q.PROGRESS}/${q.TARGET_COUNT}</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-2">
+                            <div class="bg-purple-500 h-2 rounded-full transition-all" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="flex justify-between items-center mt-1">
+                            <span class="text-[10px] font-bold text-yellow-600">🪙 +${q.COINS} &nbsp; ✨ +${q.XP}</span>
+                            ${q.COMPLETED ? '<span class="text-[10px] font-black text-green-600 uppercase bg-green-100 px-2.5 py-0.5 rounded-full">Selesai ✅</span>' : '<span class="text-[10px] font-bold text-gray-400">Sedang Berjalan</span>'}
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            },
+            updateQuestNotification() {
+                const hasPending = State.quests.some(q => q.PROGRESS >= q.TARGET_COUNT && !q.COMPLETED);
+                const dot = document.getElementById('notif-quest');
+                if(dot) {
+                    if(hasPending) dot.classList.remove('hide');
+                    else dot.classList.add('hide');
+                }
+            },
+            renderProfile() {
+                const p = State.player;
+                const body = document.getElementById('profile-body');
+                body.innerHTML = `
+                    <div class="bg-blue-600 text-white p-5 rounded-2xl text-center shadow-lg shadow-blue-500/20 relative">
+                        <button onclick="UI.closeModal('modal-profile'); setTimeout(()=>UI.openModal('modal-badges'), 300)" class="absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl font-bold text-xs backdrop-blur-sm transition-colors border border-white/30">
+                            <i class="fas fa-medal"></i> Lihat Badge (${p.badges.length}/${State.badges.length})
+                        </button>
+                        <div class="text-4xl mb-1">👨‍💼</div>
+                        <h3 class="font-black text-xl">${p.nama}</h3>
+                        <p class="text-xs text-blue-200 font-bold">Kelas ${p.kelas} • Level ${p.level}</p>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm text-center">
+                            <span class="text-xs text-gray-400 font-bold block">COINS</span>
+                            <span class="text-lg font-black text-yellow-600">🪙 ${p.coins}</span>
+                        </div>
+                        <div class="bg-white p-3.5 rounded-2xl border border-gray-100 shadow-sm text-center">
+                            <span class="text-xs text-gray-400 font-bold block">CITY SCORE</span>
+                            <span class="text-lg font-black text-blue-600">🏆 ${p.city_score}</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm space-y-2">
+                        <h4 class="font-black text-gray-800 text-sm mb-2"><i class="fas fa-chart-bar text-indigo-500"></i> Statistik Mayor</h4>
+                        <div class="flex justify-between text-xs font-bold text-gray-600 border-b pb-1"><span>Total Bangunan:</span> <span class="text-gray-900">${p.buildings.length}</span></div>
+                        <div class="flex justify-between text-xs font-bold text-gray-600 border-b pb-1"><span>Jawaban Benar:</span> <span class="text-green-600">${p.stats?.correct || 0}</span></div>
+                        <div class="flex justify-between text-xs font-bold text-gray-600 border-b pb-1"><span>Jawaban Salah:</span> <span class="text-red-500">${p.stats?.wrong || 0}</span></div>
+                        <div class="flex justify-between text-xs font-bold text-gray-600 border-b pb-1"><span>Best Streak:</span> <span class="text-orange-600">🔥 ${p.max_streak || 0}</span></div>
+                        <div class="flex justify-between text-xs font-bold text-gray-600 border-b pb-1"><span>Quest Selesai:</span> <span class="text-gray-900">${p.quests_completed || 0}</span></div>
+                        <div class="flex justify-between text-xs font-bold text-gray-600"><span>Badge Diperoleh:</span> <span class="text-gray-900">${p.badges.length} / ${State.badges.length}</span></div>
+                    </div>
+                `;
+                
+                const badgeGrid = document.getElementById('badge-grid');
+                badgeGrid.innerHTML = '';
+                State.badges.forEach(b => {
+                    const isUnlocked = p.badges.includes(b.BADGE_ID);
+                    const card = document.createElement('div');
+                    card.className = `p-3 rounded-2xl border-2 flex items-center gap-3 ${isUnlocked ? 'bg-yellow-50/60 border-yellow-300' : 'bg-gray-100 border-gray-200 opacity-60'}`;
+                    card.innerHTML = `
+                        <div class="text-3xl">${b.ICON}</div>
+                        <div>
+                            <h4 class="font-black text-xs text-gray-800">${b.NAME}</h4>
+                            <p class="text-[10px] text-gray-500 font-medium">${b.DESC}</p>
+                        </div>
+                    `;
+                    badgeGrid.appendChild(card);
+                });
+            },
+            
+            async fetchLeaderboard() {
+                const list = document.getElementById('leaderboard-list');
+                list.innerHTML = `<div class="text-center text-indigo-500 font-bold py-10"><i class="fas fa-circle-notch fa-spin text-3xl mb-2"></i><br>Menyinkronkan Server...</div>`;
+                
+                const res = await API.get('getLeaderboard');
+                if (res && res.success && res.leaderboard.length > 0) {
+                    list.innerHTML = '';
+                    res.leaderboard.forEach((p, index) => {
+                        let rankIcon = `<span class="text-gray-400 font-black text-lg w-6 inline-block text-center">${index + 1}</span>`;
+                        let bgClass = "bg-white border-gray-100";
+                        if(index === 0) { rankIcon = "🥇"; bgClass = "bg-yellow-50 border-yellow-300 shadow-md transform scale-[1.02]"; }
+                        else if(index === 1) { rankIcon = "🥈"; bgClass = "bg-gray-100 border-gray-300"; }
+                        else if(index === 2) { rankIcon = "🥉"; bgClass = "bg-orange-50 border-orange-200"; }
+
+                        const div = document.createElement('div');
+                        div.className = `flex justify-between items-center p-3 rounded-2xl border-2 ${bgClass}`;
+                        div.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="text-2xl">${rankIcon}</div>
+                                <div>
+                                    <h4 class="font-black text-gray-800 text-sm leading-tight">${p.nama} <span class="text-[10px] text-gray-500 font-bold bg-gray-200 px-1.5 rounded ml-1">${p.kelas}</span></h4>
+                                    <span class="text-[10px] font-bold text-indigo-600">Level ${p.level} • Akurasi: ${p.accuracy}%</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="block text-xs font-black text-orange-600 border border-orange-200 bg-orange-50 px-2 py-0.5 rounded-lg">${p.score} PTS</span>
+                            </div>
+                        `;
+                        list.appendChild(div);
+                    });
+                } else {
+                    list.innerHTML = `<div class="text-center text-gray-500 font-bold py-10">Data tidak ditemukan atau offline.</div>`;
+                }
+            }
+        };
+
+        // ==========================================
+        // 5. ADMIN CONTROLLER
+        // ==========================================
+        const Admin = {
+            chartInstance: null,
+            showLogin() {
+                const pw = prompt("Masukkan password Admin (Hint: ketik 'admin'):");
+                if(pw === 'admin') {
+                    document.getElementById('admin-screen').classList.remove('hide');
+                    this.loadData();
+                } else if(pw !== null) {
+                    alert("Password salah!");
+                }
+            },
+            logout() {
+                document.getElementById('admin-screen').classList.add('hide');
+            },
+            async loadData() {
+                document.getElementById('admin-loading').classList.remove('hide');
+                document.getElementById('admin-content').classList.add('hide');
+                
+                const res = await API.get('getAdminData');
+                document.getElementById('admin-loading').classList.add('hide');
+                document.getElementById('admin-content').classList.remove('hide');
+                
+                if (res && res.success) {
+                    const d = res.data;
+                    document.getElementById('adm-tot-students').innerText = d.totalStudents;
+                    document.getElementById('adm-tot-answered').innerText = d.totalAnswered;
+                    document.getElementById('adm-avg-acc').innerText = d.avgAccuracy + '%';
+                    document.getElementById('adm-top-player').innerText = d.topPlayer ? d.topPlayer.nama : '-';
+                    
+                    this.renderChart(d.chartLabels, d.chartData);
+                } else {
+                    document.getElementById('adm-tot-students').innerText = '42';
+                    document.getElementById('adm-tot-answered').innerText = '315';
+                    document.getElementById('adm-avg-acc').innerText = '78%';
+                    document.getElementById('adm-top-player').innerText = 'Ahmad (8A)';
+                    this.renderChart(['Dekomposisi', 'Algoritma', 'Hardware', 'Pola'], [85, 70, 92, 65]);
+                }
+            },
+            renderChart(labels, dataArr) {
+                const ctx = document.getElementById('accuracyChart').getContext('2d');
+                if(this.chartInstance) this.chartInstance.destroy();
+                
+                this.chartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Akurasi (%)',
+                            data: dataArr,
+                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                            borderColor: 'rgba(79, 70, 229, 1)',
+                            borderWidth: 1,
+                            borderRadius: 6
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: { beginAtZero: true, max: 100 }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            }
+        };
+
+        window.onload = () => Game.init();
+    </script>
+</body>
+</html>
